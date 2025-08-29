@@ -1,3 +1,0 @@
-/home/vivek/Codes/Games/Shooter/build/CMakeFiles/Shooter_Linux.dir
-/home/vivek/Codes/Games/Shooter/build/CMakeFiles/edit_cache.dir
-/home/vivek/Codes/Games/Shooter/build/CMakeFiles/rebuild_cache.dir
