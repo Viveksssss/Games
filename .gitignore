@@ -1,0 +1,41 @@
+**/build/
+**/out/
+**/.cache/
+**/bin/
+**/CMakeCache.txt
+**/CMakeFiles/
+**/cmake_install.cmake
+**/Makefile
+**/*.cmake
+**/*.user
+**/*.suo
+**/*.sln
+**/*.vcxproj*
+**/*.project
+**/*.cbp
+**/*.a
+**/*.so
+**/*.dylib
+**/*.lib
+**/*.dll
+**/*.exe
+**/# 编译生成物
+**/*.o
+**/*.obj
+**/*.out
+
+# 依赖目录
+**/.deps/
+**/.dependency/
+
+# 日志文件
+**/*.log
+
+# 临时文件
+**/*.tmp
+**/*.temp
+
+# IDE 文件（可选）
+**/.vscode/
+**/.idea/
+**/*.code-workspace
