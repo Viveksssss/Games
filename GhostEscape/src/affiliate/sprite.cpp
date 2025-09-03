@@ -7,7 +7,7 @@ Texture::Texture(const std::string& path)
     SDL_GetTextureSize(texture, &rect.w, &rect.h);
 }
 
-Sprite* Sprite::create(ObjectScreen* parent, const std::string& path, float scale)
+Sprite* Sprite::create(ObjectScreen* parent, const std::string& path, float scale,Anchor anchor)
 {
     auto sprite = new Sprite();
     sprite->init();

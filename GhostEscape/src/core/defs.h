@@ -8,4 +8,17 @@ enum class ObjectType {
 
 };
 
+enum class Anchor {
+    NONE,
+    TOP_LEFT,
+    TOP_RIGHT,
+    TOP_CENTER,
+    CENTER_LEFT,
+    CENTER,
+    CENTER_RIGHT,
+    BOTTOM_LEFT,
+    BOTTOM_CENTER,
+    BOTTOM_RIGHT
+};
+
 #endif

@@ -1,3 +1,4 @@
+#include "affiliate/collider.h"
 #include "core/actor.h"
 #include "player.h"
 
@@ -25,6 +26,7 @@ public:
     Enemy::State getStates() const;
     void checkStates();
     void remove();
+    void attack();
 
     void init();
 };

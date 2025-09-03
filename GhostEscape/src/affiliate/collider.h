@@ -2,17 +2,24 @@
 #define COLLIDER_H
 
 #include "../core/object_affiliate.h"
+// #include "../core/object_world.h"
 
+class ObjectWorld;
 class Collider : public ObjectAffiliate {
 protected:
 private:
-    enum class Type {
-        CIRCLE, // 以大小的x轴为半径
+    enum class ColliderType {
+        CIRCLE, // 以大小的x轴为直径
         RECTANGLE // 以大小的x轴为宽，y轴为高
     };
-    Type type = Type::RECTANGLE;
+    ColliderType type = ColliderType::CIRCLE;
 
 public:
+    void render() override;
+    static Collider* create(ObjectWorld* parent, glm::vec2 size, ColliderType type = ColliderType::CIRCLE, Anchor anchor = Anchor::CENTER);
+    bool isColliding(const Collider* other) const;
+    inline ColliderType getColliderType() const { return type; }
+    inline void setColliderType(ColliderType type) { this->type = type; }
 };
 
 #endif // COLLIDER_H

@@ -29,7 +29,7 @@ public:
     virtual void render() override;
     virtual void setTexture(const Texture& texture) override;
 
-    static SpriteAnim* create(ObjectScreen* parent, const std::string& path, float scale = 1.0f);
+    static SpriteAnim* create(ObjectScreen* parent, const std::string& path, float scale = 1.0f, Anchor anchor = Anchor::CENTER);
 };
 
 #endif // SPRITE_ANIM_H

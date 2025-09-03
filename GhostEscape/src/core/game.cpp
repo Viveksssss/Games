@@ -1,6 +1,7 @@
 #include "game.h"
 #include "../scene_main.h"
 #include <SDL3/SDL_oldnames.h>
+#include <SDL3/SDL_render.h>
 #include <SDL3_mixer/SDL_mixer.h>
 
 #include "../affiliate/sprite.h"
@@ -69,7 +70,6 @@ void Game::run()
         } else {
             this->_dt = elapsed / 1.0e9;
         }
-        SDL_Log("FPS:%lf", 1.0f / this->_dt);
     }
 
     clean();
@@ -205,4 +205,17 @@ void Game::renderTexture(const Texture& texture, const glm::vec2& position, cons
         size.y
     };
     SDL_RenderTextureRotated(this->_renderer, texture.texture, &texture.rect, &dst, texture.angle, nullptr, texture.is_filp ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+}
+
+void Game::renderBox(const glm::vec2& position, const glm::vec2& size, float alpha)
+{
+    auto texture = _asset_store->getTexture("assets/UI/circle.png");
+    SDL_FRect dst = {
+        position.x,
+        position.y,
+        size.x,
+        size.y
+    };
+    SDL_SetTextureAlphaModFloat(texture, alpha);
+    SDL_RenderTexture(this->_renderer, texture, nullptr, &dst);
 }

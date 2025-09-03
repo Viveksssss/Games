@@ -8,7 +8,7 @@ void SpriteAnim::setTexture(const Texture& texture)
     _size = glm::vec2(_texture.rect.w, _texture.rect.h);
 }
 
-SpriteAnim* SpriteAnim::create(ObjectScreen* parent, const std::string& path, float scale)
+SpriteAnim* SpriteAnim::create(ObjectScreen* parent, const std::string& path, float scale, Anchor anchor)
 {
     auto sprite = new SpriteAnim();
     sprite->init();

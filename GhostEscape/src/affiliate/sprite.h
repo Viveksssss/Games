@@ -17,7 +17,7 @@ protected:
     Texture _texture;
 
 public:
-    static Sprite* create(ObjectScreen* parent, const std::string& path, float scale = 1.0f);
+    static Sprite* create(ObjectScreen* parent, const std::string& path, float scale = 1.0f, Anchor anchor = Anchor::CENTER);
     virtual ~Sprite() = default;
     virtual void setTexture(const Texture& texture);
     virtual Texture getTexture() const { return _texture; };

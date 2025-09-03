@@ -1,5 +1,20 @@
 #include "enemy.h"
 
+void Enemy::init()
+{
+    Actor::init();
+    _anim_normal = SpriteAnim::create(this, "assets/sprite/ghost-Sheet.png", 2.0f);
+    _anim_hurt = SpriteAnim::create(this, "assets/sprite/ghostHurt-Sheet.png", 2.0f);
+    _anim_die = SpriteAnim::create(this, "assets/sprite/ghostDead-Sheet.png", 2.0f);
+    _current = _anim_normal;
+    _current->setActive(true);
+    _anim_hurt->setActive(false);
+    _anim_die->setActive(false);
+    _anim_die->setLoop(false);
+
+    _collider = Collider::create(this, _anim_normal->getSize()/ 1.5f);
+}
+
 void Enemy::aim_target(Player* target)
 {
     if (target == nullptr) {
@@ -57,17 +72,14 @@ void Enemy::remove()
     }
 }
 
-void Enemy::init()
+void Enemy::attack()
 {
-    Actor::init();
-    _anim_normal = SpriteAnim::create(this, "assets/sprite/ghost-Sheet.png", 2.0f);
-    _anim_hurt = SpriteAnim::create(this, "assets/sprite/ghostHurt-Sheet.png", 2.0f);
-    _anim_die = SpriteAnim::create(this, "assets/sprite/ghostDead-Sheet.png", 2.0f);
-    _current = _anim_normal;
-    _current->setActive(true);
-    _anim_hurt->setActive(false);
-    _anim_die->setActive(false);
-    _anim_die->setLoop(false);
+    if (!_collider || _target->getCollider() == nullptr) {
+        return;
+    }
+    if (_collider->isColliding(_target->getCollider())) {
+        SDL_Log("attack");
+    };
 }
 
 void Enemy::update(float dt)
@@ -75,4 +87,5 @@ void Enemy::update(float dt)
     Actor::update(dt);
     aim_target(_target);
     move(dt);
+    attack();
 }

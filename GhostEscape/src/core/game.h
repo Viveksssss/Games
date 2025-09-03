@@ -10,7 +10,7 @@
 #include <glm/glm.hpp>
 
 #include "asset_store.h"
-
+#include "debug.h"
 #include <string>
 
 struct Texture;
@@ -59,6 +59,8 @@ public:
     inline AssetStore* getAssetStore() { return _asset_store; };
     // 渲染函数
     void renderTexture(const Texture& texture, const glm::vec2& position, const glm::vec2& size);
+    // 测试渲染碰撞盒
+    void renderBox(const glm::vec2& position, const glm::vec2& size, float alpha);
 };
 
 #endif
