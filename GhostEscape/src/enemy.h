@@ -1,4 +1,4 @@
-#include "affiliate/collider.h"
+
 #include "core/actor.h"
 #include "player.h"
 
@@ -27,6 +27,7 @@ public:
     void checkStates();
     void remove();
     void attack();
+    static Enemy* create(Object* parent, const glm::vec2& pos, Object* target = nullptr);
 
     void init();
 };

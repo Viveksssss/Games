@@ -2,8 +2,9 @@
 #define SCENE_MAIN_H
 #include "core/scene.h"
 
-
 class Player;
+class Spawner;
+class UIMouse;
 class SceneMain : public Scene {
 public:
     SceneMain() = default;
@@ -13,10 +14,12 @@ public:
     virtual void render() override;
     virtual void handleEvents(SDL_Event& event) override;
     virtual void clean() override;
-
     void render_background();
+
 private:
-    Player*player = nullptr;
+    Player* player = nullptr;
+    Spawner* spawner = nullptr;
+    UIMouse* ui_mouse = nullptr;
 };
 
 #endif

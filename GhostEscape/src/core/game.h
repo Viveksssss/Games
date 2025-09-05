@@ -8,9 +8,10 @@
 #include <SDL3_mixer/SDL_mixer.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <glm/glm.hpp>
+#include <random>
 
 #include "asset_store.h"
-#include "debug.h"
+#include "../debug.h"
 #include <string>
 
 struct Texture;
@@ -24,6 +25,8 @@ private:
     bool isRunning = true;
     Scene* _current_scene = nullptr;
     AssetStore* _asset_store;
+    glm::vec2 _mouse_position = glm::vec2(0);
+    SDL_MouseButtonFlags _mouse_buttons = 0;
 
     // 秒间隔：s
     float _dt = 0.0f;
@@ -31,6 +34,8 @@ private:
     float _frame_delay = 0.0f;
     // 帧率：fps
     float _FPS = 240.0f;
+    // 随机数
+    std::mt19937 gen = std::mt19937(std::random_device {}());
 
     Game() { };
     Game(Game&) { };
@@ -46,7 +51,7 @@ public:
     void render();
     void clean();
 
-    Scene* getCurrentScene();
+    virtual Scene* getCurrentScene();
 
     // 绘制网格
     void drawGrid(const glm::vec2& top_left, const glm::vec2& bottom_right, int grid_width, SDL_FColor color);
@@ -61,6 +66,22 @@ public:
     void renderTexture(const Texture& texture, const glm::vec2& position, const glm::vec2& size);
     // 测试渲染碰撞盒
     void renderBox(const glm::vec2& position, const glm::vec2& size, float alpha);
+    // 生成随机数
+    float randomFloat(float min, float max);
+    int randomInt(int min, int max);
+    glm::vec2 randomVec2(const glm::vec2& min, const glm::vec2& max);
+    glm::ivec2 randomIvec2(const glm::ivec2& min, const glm::ivec2& max);
+
+    // 获取鼠标位置
+    inline glm::vec2 getMousePosition() { return _mouse_position; }
+    // 获取鼠标按键状态
+    inline SDL_MouseButtonFlags getMouseButton() { return _mouse_buttons; }
+    // 设置鼠标位置
+    inline void setMousePosition(const glm::vec2& pos) { _mouse_position = pos; }
+    // 设置鼠标按键状态
+    inline void setMouseButton(SDL_MouseButtonFlags buttons) { _mouse_buttons = buttons; }
+    // 鼠标更新
+    void updateMouse();
 };
 
 #endif

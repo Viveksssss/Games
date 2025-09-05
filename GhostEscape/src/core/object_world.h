@@ -1,9 +1,8 @@
 #ifndef OBJECT_WORLD_H
 #define OBJECT_WORLD_H
 
-#include "../affiliate/collider.h"
 #include "object_screen.h"
-
+class Collider;
 class ObjectWorld : public ObjectScreen {
 protected:
     // 世界坐标
@@ -15,7 +14,7 @@ public:
     virtual void setCollider(Collider* collider) { _collider = collider; }
 
     virtual glm::vec2 getPosition() const override;
-    void setPosition(const glm::vec2& pos);
+    virtual void setPosition(const glm::vec2& pos);
     virtual void setRenderPosition(const glm::vec2& pos) override;
     virtual void update(float dt) override;
 

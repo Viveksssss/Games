@@ -1,6 +1,6 @@
 #include "object.h"
 #include <algorithm>
-
+#include <iostream>
 void Object::handleEvents(SDL_Event& event)
 {
     for (auto& child : _children) {
@@ -12,18 +12,18 @@ void Object::handleEvents(SDL_Event& event)
 
 void Object::update([[maybe_unused]] float dt)
 {
-    for(auto it = _children.begin(); it != _children.end();)
-    {
+    for (auto& child : _object_to_add) {
+        addChild(child);
+    }
+    _object_to_add.clear();
+    for (auto it = _children.begin(); it != _children.end();) {
         auto child = *it;
-        if(child->getNeedRemove())
-        {
+        if (child->getNeedRemove()) {
             it = _children.erase(it);
             child->clean();
             delete child;
-        }
-        else
-        {
-            if(child->isActive()){
+        } else {
+            if (child->isActive()) {
                 child->update(dt);
             }
             it++;
@@ -42,6 +42,7 @@ void Object::render()
 
 void Object::clean()
 {
+    SDL_Log("clean!");
     for (auto& child : _children) {
         child->clean();
         delete child;
@@ -52,6 +53,11 @@ void Object::clean()
 void Object::addChild(Object* child)
 {
     _children.push_back(child);
+}
+
+void Object::safeAddChild(Object* child)
+{
+    _object_to_add.push_back(child);
 }
 
 void Object::removeChild(Object* child)

@@ -1,8 +1,11 @@
 #include "enemy.h"
+#include "affiliate/collider.h"
+#include "raw/stats.h"
 
 void Enemy::init()
 {
     Actor::init();
+    max_speed = 100.0f;
     _anim_normal = SpriteAnim::create(this, "assets/sprite/ghost-Sheet.png", 2.0f);
     _anim_hurt = SpriteAnim::create(this, "assets/sprite/ghostHurt-Sheet.png", 2.0f);
     _anim_die = SpriteAnim::create(this, "assets/sprite/ghostDead-Sheet.png", 2.0f);
@@ -12,12 +15,16 @@ void Enemy::init()
     _anim_die->setActive(false);
     _anim_die->setLoop(false);
 
-    _collider = Collider::create(this, _anim_normal->getSize()/ 1.5f);
+    _collider = Collider::create(this, _anim_normal->getSize() / 1.0f);
+    stats = Stats::create(this, 100.0f, 100.0f, 40.0f, 10.0f);
+
+    setType(ObjectType::ENEMY);
 }
 
 void Enemy::aim_target(Player* target)
 {
-    if (target == nullptr) {
+    if (target == nullptr || !isActive() || !_target->isActive()) {
+        velocity = glm::vec2(0.0f);
         return;
     }
     _target = target;
@@ -63,6 +70,10 @@ Enemy::State Enemy::getStates() const
 
 void Enemy::checkStates()
 {
+    SDL_Log("die");
+    if (!this->isAlive()) {
+        changeStates(State::DIE);
+    }
 }
 
 void Enemy::remove()
@@ -71,21 +82,39 @@ void Enemy::remove()
         need_remove = true;
     }
 }
-
 void Enemy::attack()
 {
-    if (!_collider || _target->getCollider() == nullptr) {
+    if (!_collider || !_target || _target->getCollider() == nullptr) {
         return;
     }
     if (_collider->isColliding(_target->getCollider())) {
-        SDL_Log("attack");
+        if (stats && _target->getStats()) {
+            _target->takeDamage(stats->getDamage());
+        }
     };
+}
+
+Enemy* Enemy::create(Object* parent, const glm::vec2& pos, Object* target)
+{
+    auto enemy = new Enemy();
+    enemy->init();
+    enemy->setPosition(pos);
+    enemy->setTarget(static_cast<Player*>(target));
+    if (parent) {
+        parent->addChild(enemy);
+    }
+    return enemy;
 }
 
 void Enemy::update(float dt)
 {
+    if (!isActive()) {
+        return;
+    }
     Actor::update(dt);
     aim_target(_target);
     move(dt);
     attack();
+    checkStates();
+    remove();
 }

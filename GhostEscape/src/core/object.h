@@ -9,6 +9,7 @@ protected:
     ObjectType _type = ObjectType::NONE;
     Game& game = Game::GetInstance();
     std::vector<Object*> _children;
+    std::vector<Object*> _object_to_add;
     bool is_active = true;
     bool need_remove = false;
 
@@ -23,6 +24,7 @@ public:
     virtual void clean();
 
     virtual void addChild(Object* child);
+    virtual void safeAddChild(Object* child);
     virtual void removeChild(Object* child);
 
     virtual ObjectType getType() { return _type; }

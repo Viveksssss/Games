@@ -1,10 +1,13 @@
 #include "scene_main.h"
-#include "player.h"
 #include "enemy.h"
-
+#include "player.h"
+#include "screen/ui_mouse.h"
+#include "spawner.h"
+#include "world/spell.h"
 
 void SceneMain::init()
 {
+
     this->_world_size = game.getScreenSize() * 3.0f;
     _camera_position = _world_size / 2.0f - game.getScreenSize() / 2.0f;
 
@@ -13,13 +16,12 @@ void SceneMain::init()
     player->setPosition(_world_size / 2.0f);
     addChild(player);
 
-    for (int i = 0; i < 10; ++i){
-        auto enemy = new Enemy();
-        enemy->init();
-        enemy->setPosition(glm::vec2(rand() % (int)_world_size.x, rand() % (int)_world_size.y));
-        enemy->setTarget(player);
-        addChild(enemy);
-    }
+    spawner = new Spawner();
+    spawner->init();
+    spawner->setPlayer(player);
+    addChild(spawner);
+
+    ui_mouse = UIMouse::create(this, "assets/UI/29.png", "assets/UI/30.png", 1.0f, Anchor::CENTER);
 }
 
 void SceneMain::update(float dt)
@@ -38,6 +40,13 @@ void SceneMain::render()
 void SceneMain::handleEvents(SDL_Event& event)
 {
     Scene::handleEvents(event);
+    if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
+        if (event.button.button == SDL_BUTTON_LEFT) {
+            auto mouse_pos = game.getMousePosition();
+            auto world_pos = screenToWorld(mouse_pos);
+            Spell::create(this, "assets/effect/Thunderstrike w blur.png", world_pos, 120.0f,3.0f, Anchor::CENTER);
+        }
+    }
 }
 
 void SceneMain::clean()

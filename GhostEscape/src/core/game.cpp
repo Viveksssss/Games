@@ -14,6 +14,8 @@ Game& Game::GetInstance()
 
 void Game::init(const std::string& title, int width, int height)
 {
+    // 屏蔽系统鼠标
+    SDL_HideCursor();
     // 屏幕大小
     this->_screen_size = glm::vec2(width, height);
     // 帧延迟
@@ -70,6 +72,7 @@ void Game::run()
         } else {
             this->_dt = elapsed / 1.0e9;
         }
+        // SDL_Log("%ld\t\t\t:%f",elapsed,1.0f/this->_dt);
     }
 
     clean();
@@ -90,6 +93,7 @@ void Game::handleEvents()
 void Game::update(float dt)
 {
     _current_scene->update(dt);
+    updateMouse();
 }
 void Game::render()
 {
@@ -198,13 +202,19 @@ glm::vec2 Game::getScreenSize()
 
 void Game::renderTexture(const Texture& texture, const glm::vec2& position, const glm::vec2& size)
 {
+    SDL_FRect src = {
+        texture.rect.x,
+        texture.rect.y,
+        texture.rect.w,
+        texture.rect.h
+    };
     SDL_FRect dst = {
         position.x,
         position.y,
         size.x,
         size.y
     };
-    SDL_RenderTextureRotated(this->_renderer, texture.texture, &texture.rect, &dst, texture.angle, nullptr, texture.is_filp ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+    SDL_RenderTextureRotated(this->_renderer, texture.texture, &src, &dst, texture.angle, nullptr, texture.is_filp ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
 
 void Game::renderBox(const glm::vec2& position, const glm::vec2& size, float alpha)
@@ -218,4 +228,29 @@ void Game::renderBox(const glm::vec2& position, const glm::vec2& size, float alp
     };
     SDL_SetTextureAlphaModFloat(texture, alpha);
     SDL_RenderTexture(this->_renderer, texture, nullptr, &dst);
+}
+
+float Game::randomFloat(float min, float max)
+{
+    return std::uniform_real_distribution<float>(min, max)(gen);
+}
+
+int Game::randomInt(int min, int max)
+{
+    return std::uniform_int_distribution<int>(min, max)(gen);
+}
+
+glm::vec2 Game::randomVec2(const glm::vec2& min, const glm::vec2& max)
+{
+    return glm::vec2(randomFloat(min.x, max.x), randomFloat(min.y, max.y));
+}
+
+glm::ivec2 Game::randomIvec2(const glm::ivec2& min, const glm::ivec2& max)
+{
+    return glm::ivec2(randomInt(min.x, max.x), randomInt(min.y, max.y));
+}
+
+void Game::updateMouse()
+{
+    _mouse_buttons = SDL_GetMouseState(&_mouse_position.x, &_mouse_position.y);
 }

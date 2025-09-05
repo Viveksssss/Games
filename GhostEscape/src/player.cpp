@@ -1,6 +1,9 @@
 #include "player.h"
 #include "affiliate/sprite_anim.h"
 #include "core/scene.h"
+#include "raw/stats.h"
+#include "world/effect.h"
+#include "affiliate/collider.h"
 
 void Player::init()
 {
@@ -11,8 +14,11 @@ void Player::init()
     this->_sprite_move = SpriteAnim::create(this, "assets/sprite/ghost-move.png", 2.0f);
 
     this->_sprite_move->setActive(false);
+    this->_sprite_idle->setActive(true);
 
+    stats = Stats::create(this, 100.0f, 100.0f, 40.0f, 10.0f);
     _collider = Collider::create(this, _sprite_idle->getSize() / 1.5f);
+    _effect_die = Effect::create(nullptr, "assets/effect/1764.png", glm::vec2(0), 2.0f, nullptr);
 }
 
 void Player::update([[maybe_unused]] float dt)
@@ -22,12 +28,14 @@ void Player::update([[maybe_unused]] float dt)
     velocity *= 0.9f;
     // 键盘控制
     keybordControl();
+    // 检查运动状态
+    checkStates();
     // 移动
     move(dt);
     // 同步相机
     syncCamera();
-    // 检查运动状态
-    checkStates();
+    // 检查是否死亡
+    checkDead();
 }
 
 void Player::render()
@@ -98,5 +106,14 @@ void Player::changeStates(bool is_moving)
 
         _sprite_idle->setCurrentFrame(_sprite_idle->getCurrentFrame());
         _sprite_idle->setFrameTimer(_sprite_idle->getFrameTimer());
+    }
+}
+
+void Player::checkDead()
+{
+    if (!isAlive()) {
+        game.getCurrentScene()->safeAddChild(_effect_die);
+        _effect_die->setPosition(getPosition());
+        setActive(false);
     }
 }

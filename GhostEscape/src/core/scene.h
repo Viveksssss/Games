@@ -24,8 +24,8 @@ public:
     // 循环遍历处理子对象：自动装载
     virtual void update([[maybe_unused]] float dt) override;
     virtual void render() override;
-    virtual void handleEvents(SDL_Event& event) override ;
-    virtual void clean() override ;
+    virtual void handleEvents(SDL_Event& event) override;
+    virtual void clean() override;
 
     inline glm::vec2 worldToScreen(const glm::vec2& world_position) { return world_position - _camera_position; }
     inline glm::vec2 screenToWorld(const glm::vec2& screen_position) { return screen_position + _camera_position; }
@@ -39,6 +39,10 @@ public:
     virtual void removeChild(Object* child) override;
     // 设置摄像机位置
     void setCameraPosition(const glm::vec2& position);
+    // 获取场景中的物体
+    inline std::vector<ObjectWorld*>& getChildrenObjectWorld() { return _children_world; }
+    // 获取场景中的物体
+    inline std::vector<ObjectScreen*>& getChildrenObjectScreen() { return _children_screen; }   
 };
 
 #endif

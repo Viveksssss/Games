@@ -7,15 +7,17 @@ Texture::Texture(const std::string& path)
     SDL_GetTextureSize(texture, &rect.w, &rect.h);
 }
 
-Sprite* Sprite::create(ObjectScreen* parent, const std::string& path, float scale,Anchor anchor)
+Sprite* Sprite::create(ObjectScreen* parent, const std::string& path, float scale, Anchor anchor)
 {
     auto sprite = new Sprite();
     sprite->init();
-    sprite->setTexture(path);
+    sprite->setTexture(Texture(path));
+    sprite->setOffsetByAnchor(anchor);
     sprite->setParent(parent);
     sprite->setOffset(glm::vec2(0, 0));
     sprite->setScale(scale);
-    parent->addChild(sprite);
+    if (parent)
+        parent->addChild(sprite);
     return sprite;
 }
 

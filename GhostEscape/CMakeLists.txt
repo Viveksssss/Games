@@ -42,6 +42,11 @@ set(SOURCES
     src/core/actor.cpp
     src/enemy.cpp
     src/affiliate/collider.cpp
+    src/raw/stats.cpp
+    src/world/effect.cpp
+    src/spawner.cpp
+    src/screen/ui_mouse.cpp
+    src/world/spell.cpp
 )
 
 # 根据平台向"通用源文件"追加平台专属的文件

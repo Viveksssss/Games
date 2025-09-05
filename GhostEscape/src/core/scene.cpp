@@ -16,6 +16,7 @@ void Scene::addChild(Object* child)
         this->_children_screen.push_back(static_cast<ObjectScreen*>(child));
         break;
     case ObjectType::OBJECT_WORLD:
+    case ObjectType::ENEMY:
         this->_children_world.push_back(static_cast<ObjectWorld*>(child));
         break;
     default:
@@ -48,6 +49,7 @@ void Scene::update([[maybe_unused]] float dt)
             it = _children_world.erase(it);
             child->clean();
             delete child;
+            child = nullptr;
         } else {
             if (child->isActive()) {
                 child->update(dt);
@@ -56,18 +58,19 @@ void Scene::update([[maybe_unused]] float dt)
         }
     }
     for (auto it = _children_screen.begin(); it != _children_screen.end();) {
-            auto child = *it;
-            if (child->getNeedRemove()) {
-                it = _children_screen.erase(it);
-                child->clean();
-                delete child;
-            } else {
-                if (child->isActive()) {
-                    child->update(dt);
-                }
-                it++;
+        auto child = *it;
+        if (child->getNeedRemove()) {
+            it = _children_screen.erase(it);
+            child->clean();
+            delete child;
+            child = nullptr;
+        } else {
+            if (child->isActive()) {
+                child->update(dt);
             }
+            it++;
         }
+    }
 }
 
 void Scene::render()
@@ -115,4 +118,8 @@ void Scene::clean()
         child->clean();
     }
     _children_screen.clear();
+    for (auto& child : _object_to_add) {
+        child->clean();
+    }
+    _object_to_add.clear();
 }

@@ -12,11 +12,13 @@ SpriteAnim* SpriteAnim::create(ObjectScreen* parent, const std::string& path, fl
 {
     auto sprite = new SpriteAnim();
     sprite->init();
-    sprite->setTexture(Texture("assets/sprite/ghost-idle.png"));
-    sprite->setParent(parent);
+    sprite->setTexture(Texture(path));
     sprite->setOffset(glm::vec2(0, 0));
     sprite->setScale(scale);
-    parent->addChild(sprite);
+    if (parent != nullptr) {
+        parent->addChild(sprite);
+        sprite->setParent(parent);
+    }
     return sprite;
 }
 

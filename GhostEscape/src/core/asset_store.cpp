@@ -4,7 +4,7 @@ void AssetStore::loadTexture(const std::string& path)
     SDL_Texture* texture = IMG_LoadTexture(_renderer, path.c_str());
     if (texture == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load texture: %s", SDL_GetError());
-        return;
+        textures[path] = nullptr;
     } else {
         textures.emplace(path, texture);
     }
@@ -47,7 +47,7 @@ SDL_Texture* AssetStore::getTexture(const std::string& path)
     if (it == textures.end()) {
         loadTexture(path);
         it = textures.find(path);
-    }
+    }       
     if (it == textures.end()) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load texture: %s", SDL_GetError());
         return nullptr;
@@ -85,7 +85,7 @@ Mix_Chunk* AssetStore::getSound(const std::string& path)
 
 TTF_Font* AssetStore::getFont(const std::string& path, int size)
 {
-    auto it = fonts.find(path);
+    auto it = fonts.find(path+std::to_string(size));
     if (it == fonts.end()) {
         loadFont(path, size);
         it = fonts.find(path);
