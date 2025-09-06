@@ -1,1 +1,1 @@
-#define OPEN_CIRCLE false
+#define OPEN_CIRCLE true

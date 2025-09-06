@@ -40,13 +40,7 @@ void SceneMain::render()
 void SceneMain::handleEvents(SDL_Event& event)
 {
     Scene::handleEvents(event);
-    if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-        if (event.button.button == SDL_BUTTON_LEFT) {
-            auto mouse_pos = game.getMousePosition();
-            auto world_pos = screenToWorld(mouse_pos);
-            Spell::create(this, "assets/effect/Thunderstrike w blur.png", world_pos, 120.0f,3.0f, Anchor::CENTER);
-        }
-    }
+    
 }
 
 void SceneMain::clean()

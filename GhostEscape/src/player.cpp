@@ -1,24 +1,31 @@
 #include "player.h"
+#include "affiliate/collider.h"
 #include "affiliate/sprite_anim.h"
 #include "core/scene.h"
 #include "raw/stats.h"
+#include "weapon_thunder.h"
 #include "world/effect.h"
-#include "affiliate/collider.h"
 
 void Player::init()
 {
     Actor::init();
     max_speed = 500.0f;
 
+    // 设置静止和移动的动画
     this->_sprite_idle = SpriteAnim::create(this, "assets/sprite/ghost-idle.png", 2.0f);
     this->_sprite_move = SpriteAnim::create(this, "assets/sprite/ghost-move.png", 2.0f);
 
     this->_sprite_move->setActive(false);
     this->_sprite_idle->setActive(true);
 
+    // 属性
     stats = Stats::create(this, 100.0f, 100.0f, 40.0f, 10.0f);
+    // 碰撞盒
     _collider = Collider::create(this, _sprite_idle->getSize() / 1.5f);
+    // 死亡效果
     _effect_die = Effect::create(nullptr, "assets/effect/1764.png", glm::vec2(0), 2.0f, nullptr);
+    // 武器
+    _weapon_thunder = WeaponThunder::create(this, 2.0f, 40.0f);
 }
 
 void Player::update([[maybe_unused]] float dt)

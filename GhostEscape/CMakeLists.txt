@@ -47,6 +47,9 @@ set(SOURCES
     src/spawner.cpp
     src/screen/ui_mouse.cpp
     src/world/spell.cpp
+    src/raw/weapon.cpp
+    src/weapon_thunder.cpp
+    
 )
 
 # 根据平台向"通用源文件"追加平台专属的文件

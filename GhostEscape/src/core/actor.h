@@ -19,7 +19,7 @@ public:
     inline void setVelocity(const glm::vec2& value) { velocity = value; }
     inline float getMaxSpeed() const { return max_speed; }
     inline void setMaxSpeed(float value) { max_speed = value; }
-    inline Stats* getStats() const { return stats; }
+    inline Stats* getStats()  { return stats; }
     inline void setStats(Stats* value) { stats = value; }
     virtual void takeDamage(float damage);
     virtual bool isAlive();

@@ -3,9 +3,10 @@
 
 #include "affiliate/sprite_anim.h"
 #include "core/actor.h"
+#include "raw/weapon.h"
 #include <SDL3/SDL_events.h>
 
-
+class WeaponThunder;
 class Effect;
 class Player : public Actor {
 protected:
@@ -13,6 +14,8 @@ protected:
     SpriteAnim* _sprite_move;
     Effect* _effect_die;
     bool is_moving = false;
+
+    WeaponThunder* _weapon_thunder = nullptr;
 
 public:
     virtual void init() override;

@@ -30,6 +30,6 @@ void Collider::render()
 #if OPEN_CIRCLE
     ObjectAffiliate::render();
     auto pos = _parent->getRenderPosition() + _offset;
-    game.renderBox(pos, _size, 0.3);
+    game.renderBox(pos, _size, 0.4);
 #endif
 }
