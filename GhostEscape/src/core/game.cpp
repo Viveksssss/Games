@@ -200,19 +200,19 @@ glm::vec2 Game::getScreenSize()
     return this->_screen_size;
 }
 
-void Game::renderTexture(const Texture& texture, const glm::vec2& position, const glm::vec2& size)
+void Game::renderTexture(const Texture& texture, const glm::vec2& position, const glm::vec2& size, const glm::vec2& mask)
 {
     SDL_FRect src = {
         texture.rect.x,
         texture.rect.y,
-        texture.rect.w,
-        texture.rect.h
+        texture.rect.w * mask.x,
+        texture.rect.h * mask.y
     };
     SDL_FRect dst = {
         position.x,
         position.y,
-        size.x,
-        size.y
+        size.x * mask.x,
+        size.y * mask.y
     };
     SDL_RenderTextureRotated(this->_renderer, texture.texture, &src, &dst, texture.angle, nullptr, texture.is_filp ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
@@ -228,6 +228,26 @@ void Game::renderBox(const glm::vec2& position, const glm::vec2& size, float alp
     };
     SDL_SetTextureAlphaModFloat(texture, alpha);
     SDL_RenderTexture(this->_renderer, texture, nullptr, &dst);
+}
+
+void Game::renderHBar(const glm::vec2& position, const glm::vec2& size, float percentage, SDL_FColor color)
+{
+    SDL_SetRenderDrawColorFloat(this->_renderer, color.r, color.g, color.b, color.a);
+    SDL_FRect bounderRect = {
+        position.x,
+        position.y,
+        size.x,
+        size.y
+    };
+    SDL_FRect fillRect = {
+        position.x,
+        position.y,
+        size.x * percentage,
+        size.y
+    };
+    SDL_RenderRect(this->_renderer, &bounderRect);
+    SDL_RenderFillRect(this->_renderer, &fillRect);
+    SDL_SetRenderDrawColorFloat(this->_renderer, 0, 0, 0, 1);
 }
 
 float Game::randomFloat(float min, float max)

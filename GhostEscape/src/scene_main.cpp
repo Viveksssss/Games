@@ -1,9 +1,9 @@
 #include "scene_main.h"
 #include "enemy.h"
 #include "player.h"
+#include "screen/hud_stats.h"
 #include "screen/ui_mouse.h"
 #include "spawner.h"
-#include "world/spell.h"
 
 void SceneMain::init()
 {
@@ -11,17 +11,23 @@ void SceneMain::init()
     this->_world_size = game.getScreenSize() * 3.0f;
     _camera_position = _world_size / 2.0f - game.getScreenSize() / 2.0f;
 
+    // 鼠标ui
+    ui_mouse = UIMouse::create(this, "assets/UI/29.png", "assets/UI/30.png", 1.0f, Anchor::CENTER);
+
+    // 玩家
     player = new Player();
     player->init();
     player->setPosition(_world_size / 2.0f);
     addChild(player);
 
+    // 敌方生成器
     spawner = new Spawner();
     spawner->init();
     spawner->setPlayer(player);
     addChild(spawner);
 
-    ui_mouse = UIMouse::create(this, "assets/UI/29.png", "assets/UI/30.png", 1.0f, Anchor::CENTER);
+    // HUD
+    hud_stats = HUDStats::create(this, player, { 30.0f, 30.0f });
 }
 
 void SceneMain::update(float dt)
@@ -40,7 +46,6 @@ void SceneMain::render()
 void SceneMain::handleEvents(SDL_Event& event)
 {
     Scene::handleEvents(event);
-    
 }
 
 void SceneMain::clean()

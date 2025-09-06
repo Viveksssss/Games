@@ -42,7 +42,6 @@ void Object::render()
 
 void Object::clean()
 {
-    SDL_Log("clean!");
     for (auto& child : _children) {
         child->clean();
         delete child;

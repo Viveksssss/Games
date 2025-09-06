@@ -1,10 +1,12 @@
 #ifndef SCENE_MAIN_H
 #define SCENE_MAIN_H
 #include "core/scene.h"
+#include "screen/hud_stats.h"
 
 class Player;
 class Spawner;
 class UIMouse;
+class HUDStats;
 class SceneMain : public Scene {
 public:
     SceneMain() = default;
@@ -20,6 +22,7 @@ private:
     Player* player = nullptr;
     Spawner* spawner = nullptr;
     UIMouse* ui_mouse = nullptr;
+    HUDStats* hud_stats = nullptr;
 };
 
 #endif

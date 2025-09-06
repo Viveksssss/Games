@@ -9,7 +9,7 @@ class Weapon : public Object {
 protected:
     Actor* parent;
     float _cool_down = 1.0f;
-    float _mana_cost;
+    float _mana_cost = 40.0f;
     float _cool_down_timer = 0.0f;
 
 private:
@@ -21,8 +21,8 @@ public:
     inline float get_mana_cost() { return _mana_cost; }
     inline void setParent(Actor* actor) { parent = actor; }
     inline Actor* getParent() { return parent; }
-    virtual void attack(const glm::vec2& pos,Spell*spell);
-    virtual bool canAttack();  
+    virtual void attack(const glm::vec2& pos, Spell* spell);
+    virtual bool canAttack();
 };
 
 #endif // WEAPON_H

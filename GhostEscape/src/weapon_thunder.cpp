@@ -9,7 +9,7 @@ void WeaponThunder::handleEvents(SDL_Event& event)
         if (event.button.button == SDL_BUTTON_LEFT) {
             if (canAttack()) {
                 auto pos = game.getCurrentScene()->screenToWorld({ event.button.x, event.button.y });
-                auto spell = Spell::create(nullptr, "assets/effect/Thunderstrike w blur.png", pos, 120.0f, 5.0f, Anchor::CENTER);
+                auto spell = Spell::create(nullptr, "assets/effect/Thunderstrike w blur.png", pos, 45.0f, 10.0f, Anchor::CENTER);
                 attack(pos, spell);
             }
         }

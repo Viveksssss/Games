@@ -28,13 +28,12 @@ void Stats::takeDamage(float damage)
         _health = 0;
         is_alive = false;
     }
-    SDL_Log("%f", _health);
     is_invincible = true;
 }
 
 void Stats::useMana(float mana)
 {
-    mana -= _mana;
+    _mana -= mana;
     if (mana < 0) {
         _mana = 0;
     }

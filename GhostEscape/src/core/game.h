@@ -63,9 +63,11 @@ public:
     // 获取资源类
     inline AssetStore* getAssetStore() { return _asset_store; };
     // 渲染函数
-    void renderTexture(const Texture& texture, const glm::vec2& position, const glm::vec2& size);
+    void renderTexture(const Texture& texture, const glm::vec2& position, const glm::vec2& size,const glm::vec2&mask = {1.0f,1.0f});
     // 测试渲染碰撞盒
     void renderBox(const glm::vec2& position, const glm::vec2& size, float alpha);
+    // 渲染bar
+    void renderHBar(const glm::vec2& position, const glm::vec2& size, float percentage, SDL_FColor color);
     // 生成随机数
     float randomFloat(float min, float max);
     int randomInt(int min, int max);

@@ -1,4 +1,5 @@
 #include "enemy.h"
+#include "affiliate/affiliate_bar.h"
 #include "affiliate/collider.h"
 #include "raw/stats.h"
 
@@ -15,8 +16,11 @@ void Enemy::init()
     _anim_die->setActive(false);
     _anim_die->setLoop(false);
 
+    auto size = _anim_normal->getSize();
     _collider = Collider::create(this, _anim_normal->getSize() / 1.0f);
     stats = Stats::create(this, 100.0f, 100.0f, 40.0f, 10.0f);
+    healthBar = AffiliateBar::create(this, { size.x, 10 }, { 0, 0 }, 1.0f, Anchor::BOTTOM_CENTER);
+    healthBar->setOffset( healthBar->getOffset() + glm::vec2(0, size.y / 2) );
 
     setType(ObjectType::ENEMY);
 }
@@ -70,7 +74,6 @@ Enemy::State Enemy::getStates() const
 
 void Enemy::checkStates()
 {
-    SDL_Log("die");
     if (!this->isAlive()) {
         changeStates(State::DIE);
     }
