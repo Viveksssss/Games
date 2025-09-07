@@ -9,6 +9,7 @@ void Spawner::update(float dt)
         _timer += dt;
         if (_timer >= _interval) {
             _timer = 0;
+            game.playSound("assets/sound/silly-ghost-sound-242342.mp3");
             auto p1 = game.getCurrentScene()->getCameraPosition();
             auto p2 = game.getCurrentScene()->getCameraPosition() + game.getScreenSize();
             for (int i = 0; i < _num; ++i) {

@@ -10,8 +10,8 @@
 #include <glm/glm.hpp>
 #include <random>
 
-#include "asset_store.h"
 #include "../debug.h"
+#include "asset_store.h"
 #include <string>
 
 struct Texture;
@@ -21,12 +21,17 @@ class Game {
 private:
     SDL_Window* _window = nullptr;
     SDL_Renderer* _renderer = nullptr;
+    TTF_TextEngine* _ttf_engine = nullptr;
+
     glm::vec2 _screen_size = glm::vec2(0);
     bool isRunning = true;
     Scene* _current_scene = nullptr;
     AssetStore* _asset_store;
     glm::vec2 _mouse_position = glm::vec2(0);
     SDL_MouseButtonFlags _mouse_buttons = 0;
+
+    int _score = 0;
+    int _high_score = 0;
 
     // 秒间隔：s
     float _dt = 0.0f;
@@ -62,8 +67,10 @@ public:
 
     // 获取资源类
     inline AssetStore* getAssetStore() { return _asset_store; };
+    // 文字函数
+    TTF_Text* createText(const std::string& text, const std::string& font, int size = 32);
     // 渲染函数
-    void renderTexture(const Texture& texture, const glm::vec2& position, const glm::vec2& size,const glm::vec2&mask = {1.0f,1.0f});
+    void renderTexture(const Texture& texture, const glm::vec2& position, const glm::vec2& size, const glm::vec2& mask = { 1.0f, 1.0f });
     // 测试渲染碰撞盒
     void renderBox(const glm::vec2& position, const glm::vec2& size, float alpha);
     // 渲染bar
@@ -73,6 +80,18 @@ public:
     int randomInt(int min, int max);
     glm::vec2 randomVec2(const glm::vec2& min, const glm::vec2& max);
     glm::ivec2 randomIvec2(const glm::ivec2& min, const glm::ivec2& max);
+
+    // 播放音频
+    // Mix_Music
+    inline void playMusic(const std::string& path, bool loop = true) { Mix_PlayMusic(_asset_store->getMusic(path), loop ? -1 : 0); }
+    // Mix_Chunk
+    inline void playSound(const std::string& path) { Mix_PlayChannel(-1, _asset_store->getSound(path), 0); }
+    inline void stopMusic() { Mix_HaltMusic(); }
+    inline void stopSound() { Mix_HaltChannel(-1); }
+    inline void pauseMusic() { Mix_PauseMusic(); }
+    inline void pauseSound() { Mix_Pause(-1); }
+    inline void resumeMusic() { Mix_ResumeMusic(); }
+    inline void resumeSound() { Mix_Resume(-1); }
 
     // 获取鼠标位置
     inline glm::vec2 getMousePosition() { return _mouse_position; }
@@ -84,6 +103,11 @@ public:
     inline void setMouseButton(SDL_MouseButtonFlags buttons) { _mouse_buttons = buttons; }
     // 鼠标更新
     void updateMouse();
-};
 
+    void setScore(int score);
+    int getScore() { return _score; }
+    int getHighScore() { return _high_score; }
+    void setHighScore(int high_score) { _high_score = high_score; }
+    void addScore(int score) { _score += score; }
+};
 #endif

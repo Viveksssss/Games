@@ -20,7 +20,7 @@ void Enemy::init()
     _collider = Collider::create(this, _anim_normal->getSize() / 1.0f);
     stats = Stats::create(this, 100.0f, 100.0f, 40.0f, 10.0f);
     healthBar = AffiliateBar::create(this, { size.x, 10 }, { 0, 0 }, 1.0f, Anchor::BOTTOM_CENTER);
-    healthBar->setOffset( healthBar->getOffset() + glm::vec2(0, size.y / 2) );
+    healthBar->setOffset(healthBar->getOffset() + glm::vec2(0, size.y / 2));
 
     setType(ObjectType::ENEMY);
 }
@@ -74,15 +74,23 @@ Enemy::State Enemy::getStates() const
 
 void Enemy::checkStates()
 {
-    if (!this->isAlive()) {
-        changeStates(State::DIE);
-    }
+    State new_stats;
+    if (stats->getHealth() <= 0)
+        new_stats = State::DIE;
+    else if (stats->getInvincible())
+        new_stats = State::HURT;
+    else
+        new_stats = State::NORMAL;
+
+    if (new_stats != _current_state)
+        changeStates(new_stats);
 }
 
 void Enemy::remove()
 {
     if (_anim_die->getFinish()) {
         need_remove = true;
+        game.addScore(this->score);
     }
 }
 void Enemy::attack()
@@ -111,13 +119,12 @@ Enemy* Enemy::create(Object* parent, const glm::vec2& pos, Object* target)
 
 void Enemy::update(float dt)
 {
-    if (!isActive()) {
-        return;
-    }
     Actor::update(dt);
-    aim_target(_target);
-    move(dt);
-    attack();
+    if (_target->isActive()) {
+        aim_target(_target);
+        move(dt);
+        attack();
+    }
     checkStates();
     remove();
 }

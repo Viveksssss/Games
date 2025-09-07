@@ -10,6 +10,10 @@ protected:
         DIE
     };
 
+    int score = 10;
+
+    State _current_state = State::NORMAL;
+
     State _state = State::NORMAL;
     Player* _target = nullptr;
     SpriteAnim* _anim_normal = nullptr;

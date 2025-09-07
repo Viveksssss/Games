@@ -51,6 +51,9 @@ set(SOURCES
     src/weapon_thunder.cpp
     src/affiliate/affiliate_bar.cpp
     src/screen/hud_stats.cpp
+    src/screen/hud_skill.cpp
+    src/affiliate/text_label.cpp
+    src/screen/hud_text.cpp
 )
 
 # 根据平台向"通用源文件"追加平台专属的文件

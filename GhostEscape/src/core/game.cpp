@@ -42,12 +42,14 @@ void Game::init(const std::string& title, int width, int height)
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "TTF_INIT Error: %s", SDL_GetError());
         return;
     }
+
     // 窗口与渲染器
     SDL_CreateWindowAndRenderer(title.c_str(), width, height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN, &this->_window, &this->_renderer);
     if (!_window | !_renderer) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "TTF_INIT Error: %s", SDL_GetError());
         return;
     }
+    _ttf_engine = TTF_CreateRendererTextEngine(_renderer);
     // 逻辑窗口分辨率
     SDL_SetRenderLogicalPresentation(_renderer, width, height, SDL_LOGICAL_PRESENTATION_LETTERBOX);
     // 资源类
@@ -72,7 +74,6 @@ void Game::run()
         } else {
             this->_dt = elapsed / 1.0e9;
         }
-        // SDL_Log("%ld\t\t\t:%f",elapsed,1.0f/this->_dt);
     }
 
     clean();
@@ -109,6 +110,9 @@ void Game::clean()
     if (_current_scene) {
         _current_scene->clean();
         delete _current_scene;
+    }
+    if (_ttf_engine) {
+        TTF_DestroyRendererTextEngine(_ttf_engine);
     }
     if (this->_renderer)
         SDL_DestroyRenderer(this->_renderer);
@@ -204,13 +208,13 @@ void Game::renderTexture(const Texture& texture, const glm::vec2& position, cons
 {
     SDL_FRect src = {
         texture.rect.x,
-        texture.rect.y,
+        texture.rect.y + texture.rect.h * (1 - mask.y),
         texture.rect.w * mask.x,
         texture.rect.h * mask.y
     };
     SDL_FRect dst = {
         position.x,
-        position.y,
+        position.y + size.y * (1 - mask.y),
         size.x * mask.x,
         size.y * mask.y
     };
@@ -273,4 +277,18 @@ glm::ivec2 Game::randomIvec2(const glm::ivec2& min, const glm::ivec2& max)
 void Game::updateMouse()
 {
     _mouse_buttons = SDL_GetMouseState(&_mouse_position.x, &_mouse_position.y);
+}
+
+void Game::setScore(int score)
+{
+    _score = score;
+    if (_score > _high_score) {
+        _score = _high_score;
+    }
+}
+
+TTF_Text* Game::createText(const std::string& text, const std::string& font, int size)
+{
+    auto _font = _asset_store->getFont(font, size);
+    return TTF_CreateText(this->_ttf_engine, _font, text.c_str(), 0);
 }

@@ -60,6 +60,13 @@ void Player::handleEvents(SDL_Event& event)
     Actor::handleEvents(event);
 }
 
+void Player::takeDamage(float damage)
+{
+    if(!stats || stats->getInvincible()) return;
+    Actor::takeDamage(damage); 
+    game.playSound("assets/sound/hit-flesh-02-266309.mp3");
+}
+
 void Player::keybordControl()
 {
     auto currentKeyboardState = SDL_GetKeyboardState(nullptr);
@@ -122,5 +129,6 @@ void Player::checkDead()
         game.getCurrentScene()->safeAddChild(_effect_die);
         _effect_die->setPosition(getPosition());
         setActive(false);
+        game.playSound("assets/sound/female-scream-02-89290.mp3");
     }
 }
