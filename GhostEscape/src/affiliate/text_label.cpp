@@ -23,6 +23,7 @@ void TextLabel::setFontPath(const char* path, int size)
     if (font) {
         TTF_SetTextFont(this->_ttf_text, font);
     }
+    updateSize();
 }
 void TextLabel::setTextSize(int size)
 {
@@ -31,6 +32,7 @@ void TextLabel::setTextSize(int size)
     if (font) {
         TTF_SetTextFont(this->_ttf_text, font);
     }
+    updateSize();
 }
 
 void TextLabel::updateSize()
@@ -60,6 +62,7 @@ void TextLabel::setFont(const std::string& path, int size)
         _ttf_text = game.createText("", path, font_size);
     }
     TTF_SetTextFont(_ttf_text, font);
+    updateSize();
 }
 
 void TextLabel::clean()

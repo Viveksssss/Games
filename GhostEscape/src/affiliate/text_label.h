@@ -18,7 +18,7 @@ public:
     virtual void clean() override;
 
     void setFont(const std::string& path, int size);
-    inline void setText(const std::string& text) { TTF_SetTextString(_ttf_text, text.c_str(), 0); }
+    inline void setText(const std::string& text) { TTF_SetTextString(_ttf_text, text.c_str(), 0);updateSize(); }
     void setFontPath(const char* path, int size);
     void setTextSize(int size);
     inline std::string getText() { return _ttf_text->text; }

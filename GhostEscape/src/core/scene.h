@@ -16,6 +16,8 @@ protected:
     std::vector<ObjectWorld*> _children_world;
     // 屏幕物体
     std::vector<ObjectScreen*> _children_screen;
+    // 是否暂停游戏
+    bool _is_pause = false;
 
 public:
     Scene() = default;
@@ -24,7 +26,7 @@ public:
     // 循环遍历处理子对象：自动装载
     virtual void update([[maybe_unused]] float dt) override;
     virtual void render() override;
-    virtual void handleEvents(SDL_Event& event) override;
+    virtual bool handleEvents(SDL_Event& event) override;
     virtual void clean() override;
 
     inline glm::vec2 worldToScreen(const glm::vec2& world_position) { return world_position - _camera_position; }
@@ -32,6 +34,8 @@ public:
     inline glm::vec2 getCameraPosition() const { return _camera_position; };
     inline glm::vec2 getWorldSize() const { return _world_size; };
     inline void setWorldSize(const glm::vec2& size) { _world_size = size; };
+    void resume();
+    void pause();
 
     // 根据类型添加子对象到不同的容器
     virtual void addChild(Object* child) override;
@@ -42,7 +46,7 @@ public:
     // 获取场景中的物体
     inline std::vector<ObjectWorld*>& getChildrenObjectWorld() { return _children_world; }
     // 获取场景中的物体
-    inline std::vector<ObjectScreen*>& getChildrenObjectScreen() { return _children_screen; }   
+    inline std::vector<ObjectScreen*>& getChildrenObjectScreen() { return _children_screen; }
 };
 
 #endif

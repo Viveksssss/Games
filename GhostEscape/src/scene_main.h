@@ -9,6 +9,8 @@ class Spawner;
 class UIMouse;
 class HUDStats;
 class HUDText;
+class HUDButton;
+class Timer;
 class SceneMain : public Scene {
 public:
     SceneMain() = default;
@@ -16,7 +18,7 @@ public:
     virtual void init() override;
     virtual void update([[maybe_unused]] float) override;
     virtual void render() override;
-    virtual void handleEvents(SDL_Event& event) override;
+    virtual bool handleEvents(SDL_Event& event) override;
     virtual void clean() override;
     void render_background();
     void update_score();
@@ -27,6 +29,16 @@ private:
     UIMouse* ui_mouse = nullptr;
     HUDStats* hud_stats = nullptr;
     HUDText* hud_text = nullptr;
+    HUDButton* btn_pause = nullptr;
+    HUDButton* btn_restart = nullptr;
+    HUDButton* btn_back = nullptr;
+    Timer* end_timer = nullptr;
+
+private:
+    void checkBtnPause();
+    void checkBtnRestart();
+    void checkBtnBack();
+    void checkEndTimer();
 };
 
 #endif

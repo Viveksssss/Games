@@ -1,10 +1,11 @@
 #include "game.h"
-#include "../scene_main.h"
 #include <SDL3/SDL_oldnames.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3_mixer/SDL_mixer.h>
+#include <fstream>
 
 #include "../affiliate/sprite.h"
+#include "../scene_title.h"
 
 Game& Game::GetInstance()
 {
@@ -55,7 +56,7 @@ void Game::init(const std::string& title, int width, int height)
     // 资源类
     _asset_store = new AssetStore(_renderer);
     // 初始化场景
-    this->_current_scene = new SceneMain();
+    this->_current_scene = new SceneTitle();
     this->_current_scene->init();
 }
 
@@ -63,6 +64,10 @@ void Game::run()
 {
     while (isRunning) {
         auto start = SDL_GetTicksNS(); // ns
+        if (_next_scene) {
+            changeScene(_next_scene);
+            _next_scene = nullptr;
+        }
         handleEvents();
         update(_dt);
         render();
@@ -291,4 +296,38 @@ TTF_Text* Game::createText(const std::string& text, const std::string& font, int
 {
     auto _font = _asset_store->getFont(font, size);
     return TTF_CreateText(this->_ttf_engine, _font, text.c_str(), 0);
+}
+
+bool Game::isMouseInRect(const glm::vec2& top_left, const glm::vec2& bottom_right)
+{
+    if (_mouse_position.x >= top_left.x && _mouse_position.x <= bottom_right.x && _mouse_position.y >= top_left.y && _mouse_position.y <= bottom_right.y) {
+        return true;
+    }
+    return false;
+}
+
+void Game::quit()
+{
+    isRunning = false;
+}
+
+void Game::changeScene(Scene* scene)
+{
+    if (scene != _current_scene) {
+        _current_scene->clean();
+        delete _current_scene;
+    }
+    _current_scene = scene;
+    _current_scene->init();
+}
+
+std::string Game::loadTextFile(const std::string& path)
+{
+    std::ifstream file(path);
+    std::string line;
+    std::string text;
+    while(std::getline(file,line)){
+        text += line + "\n";
+    }  
+    return text;
 }

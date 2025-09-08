@@ -22,8 +22,8 @@ public:
     virtual void update([[maybe_unused]] float dt) override;
     virtual void render() override;
     virtual void clean() override;
-    virtual void handleEvents(SDL_Event& event) override;
-    virtual void takeDamage(float damage)override;
+    virtual bool handleEvents(SDL_Event& event) override;
+    virtual void takeDamage(float damage) override;
 
     void keybordControl();
     void syncCamera();

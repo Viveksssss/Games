@@ -1,13 +1,14 @@
 #include "object.h"
 #include <algorithm>
-#include <iostream>
-void Object::handleEvents(SDL_Event& event)
+bool Object::handleEvents(SDL_Event& event)
 {
     for (auto& child : _children) {
         if (child->isActive()) {
-            child->handleEvents(event);
+            if (child->handleEvents(event))
+                return true;
         }
     }
+    return false;
 }
 
 void Object::update([[maybe_unused]] float dt)

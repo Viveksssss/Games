@@ -54,6 +54,9 @@ set(SOURCES
     src/screen/hud_skill.cpp
     src/affiliate/text_label.cpp
     src/screen/hud_text.cpp
+    src/scene_title.cpp
+    src/screen/hud_button.cpp
+    src/raw/timer.cpp
 )
 
 # 根据平台向"通用源文件"追加平台专属的文件

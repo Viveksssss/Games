@@ -19,15 +19,25 @@ struct Texture;
 class Scene;
 class Game {
 private:
+    // 游戏窗口
     SDL_Window* _window = nullptr;
+    // 渲染器
     SDL_Renderer* _renderer = nullptr;
+    // 字体引擎
     TTF_TextEngine* _ttf_engine = nullptr;
-
-    glm::vec2 _screen_size = glm::vec2(0);
+    // 游戏是否运行
     bool isRunning = true;
+    // 屏幕大小
+    glm::vec2 _screen_size = glm::vec2(0);
+    // 当前场景
     Scene* _current_scene = nullptr;
+    // 下一场景
+    Scene* _next_scene = nullptr;
+    // 资源器
     AssetStore* _asset_store;
+    // 鼠标位置
     glm::vec2 _mouse_position = glm::vec2(0);
+    // 鼠标按键状态
     SDL_MouseButtonFlags _mouse_buttons = 0;
 
     int _score = 0;
@@ -103,11 +113,20 @@ public:
     inline void setMouseButton(SDL_MouseButtonFlags buttons) { _mouse_buttons = buttons; }
     // 鼠标更新
     void updateMouse();
+    // 退出游戏
+    void quit();
+    // 切换场景
+    void changeScene(Scene* scene);
+    void safeChangeScene(Scene* scene) { _next_scene = scene; }
 
     void setScore(int score);
     int getScore() { return _score; }
     int getHighScore() { return _high_score; }
     void setHighScore(int high_score) { _high_score = high_score; }
     void addScore(int score) { _score += score; }
+
+    bool isMouseInRect(const glm::vec2& top_left, const glm::vec2& bottom_right);
+
+    std::string loadTextFile(const std::string& path);
 };
 #endif

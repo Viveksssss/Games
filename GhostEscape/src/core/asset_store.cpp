@@ -4,7 +4,7 @@ void AssetStore::loadTexture(const std::string& path)
     SDL_Texture* texture = IMG_LoadTexture(_renderer, path.c_str());
     if (texture == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load texture: %s", SDL_GetError());
-        textures[path] = nullptr;
+        return;
     } else {
         textures.emplace(path, texture);
     }
@@ -44,12 +44,13 @@ void AssetStore::loadFont(const std::string& path, int size)
 SDL_Texture* AssetStore::getTexture(const std::string& path)
 {
     auto it = textures.find(path);
-    if (it == textures.end()) {
+    if (it == textures.end() || it->second == nullptr) {
+        // 如果不存在或者是nullptr，都重新加载
         loadTexture(path);
         it = textures.find(path);
     }       
-    if (it == textures.end()) {
-        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load texture: %s", SDL_GetError());
+    if (it == textures.end() || it->second == nullptr) {
+        SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load texture: %s", path.c_str());
         return nullptr;
     }
     return it->second;
@@ -85,10 +86,10 @@ Mix_Chunk* AssetStore::getSound(const std::string& path)
 
 TTF_Font* AssetStore::getFont(const std::string& path, int size)
 {
-    auto it = fonts.find(path+std::to_string(size));
+    auto it = fonts.find(path + std::to_string(size));
     if (it == fonts.end()) {
         loadFont(path, size);
-        it = fonts.find(path+std::to_string(size));
+        it = fonts.find(path + std::to_string(size));
     }
     if (it == fonts.end()) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load font: %s", SDL_GetError());

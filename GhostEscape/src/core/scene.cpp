@@ -37,24 +37,29 @@ void Scene::removeChild(Object* child)
     case ObjectType::OBJECT_WORLD:
         this->_children_world.erase(std::remove(this->_children_world.begin(), this->_children_world.end(), child), this->_children_world.end());
         break;
+    default:
+        this->_children_world.erase(std::remove(this->_children_world.begin(), this->_children_world.end(), child), this->_children_world.end());
+        break;
     }
 }
 
 void Scene::update([[maybe_unused]] float dt)
 {
-    Object::update(dt);
-    for (auto it = _children_world.begin(); it != _children_world.end();) {
-        auto child = *it;
-        if (child->getNeedRemove()) {
-            it = _children_world.erase(it);
-            child->clean();
-            delete child;
-            child = nullptr;
-        } else {
-            if (child->isActive()) {
-                child->update(dt);
+    if (!_is_pause) {
+        Object::update(dt);
+        for (auto it = _children_world.begin(); it != _children_world.end();) {
+            auto child = *it;
+            if (child->getNeedRemove()) {
+                it = _children_world.erase(it);
+                child->clean();
+                delete child;
+                child = nullptr;
+            } else {
+                if (child->isActive()) {
+                    child->update(dt);
+                }
+                it++;
             }
-            it++;
         }
     }
     for (auto it = _children_screen.begin(); it != _children_screen.end();) {
@@ -88,19 +93,25 @@ void Scene::render()
     }
 }
 
-void Scene::handleEvents(SDL_Event& event)
+bool Scene::handleEvents(SDL_Event& event)
 {
+    for (auto& child : _children_screen) {
+        if (child->isActive()) {
+            if (child->handleEvents(event))
+                return true;
+        }
+    }
+    if (_is_pause)
+        return false;
     Object::handleEvents(event);
     for (auto& child : _children_world) {
         if (child->isActive()) {
-            child->handleEvents(event);
+            if (child->handleEvents(event))
+                return true;
         }
     }
-    for (auto& child : _children_screen) {
-        if (child->isActive()) {
-            child->handleEvents(event);
-        }
-    }
+
+    return false;
 }
 
 void Scene::clean()
@@ -122,4 +133,18 @@ void Scene::clean()
         child->clean();
     }
     _object_to_add.clear();
+}
+
+void Scene::resume()
+{
+    _is_pause = false;
+    game.resumeMusic();
+    game.resumeSound();
+}
+
+void Scene::pause()
+{
+    _is_pause = true;
+    game.pauseMusic();
+    game.pauseSound();
 }

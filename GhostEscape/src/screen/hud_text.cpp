@@ -12,7 +12,7 @@ void HUDText::setBackground(const std::string& path)
 void HUDText::adaptBgSize()
 {
     _text->updateSize();
-    _sprite->setSize(_text->getSize() + glm::vec2(50, 20));
+    _sprite->setSize(_text->getSize() + glm::vec2(50, 50));
 }
 HUDText* HUDText::create(Object* parent, const std::string& text, const glm::vec2& render_pos, const glm::vec2& size, const std::string& path, int font_size, const std::string& bg_path, Anchor anchor)
 {

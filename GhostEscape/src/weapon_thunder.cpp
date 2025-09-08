@@ -4,7 +4,7 @@
 #include "world/spell.h"
 #include "screen/hud_skill.h"
 
-void WeaponThunder::handleEvents(SDL_Event& event)
+bool WeaponThunder::handleEvents(SDL_Event& event)
 {
     Weapon::handleEvents(event);
     if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
@@ -14,9 +14,11 @@ void WeaponThunder::handleEvents(SDL_Event& event)
                 auto pos = game.getCurrentScene()->screenToWorld({ event.button.x, event.button.y });
                 auto spell = Spell::create(nullptr, "assets/effect/Thunderstrike w blur.png", pos, 45.0f, 10.0f, Anchor::CENTER);
                 attack(pos, spell);
+                return true;
             }
         }
     }
+    return false;
 }
 
 WeaponThunder* WeaponThunder::create(Actor* parent, float cool_down, float mana_cost)
