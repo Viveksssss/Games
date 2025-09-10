@@ -21,6 +21,7 @@ Collider* Collider::create(ObjectWorld* parent, glm::vec2 size, ColliderType typ
     collider->setParent(parent);
     collider->setSize(size);
     collider->setColliderType(type);
+    collider->setOffsetByAnchor(anchor);
     parent->addChild(collider);
     return collider;
 }

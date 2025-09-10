@@ -18,6 +18,11 @@ bool Timer::timeOut()
     return false;
 }
 
+float Timer::getProcess()
+{
+    return _timer / _interval;
+}
+
 void Timer::init()
 {
     Object::init();

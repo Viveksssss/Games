@@ -33,11 +33,10 @@ Effect* Effect::create(Object* parent, const std::string& path, const glm::vec2&
     return effect;
 }
 
-
 void Effect::clean()
 {
     ObjectWorld::clean();
-    if (_next_world){      // 如果next_object_已经添加到场景中，就不应该再去删除
+    if (_next_world) { // 如果next_object_已经添加到场景中，就不应该再去删除
         _next_world->clean();
         delete _next_world;
         _next_world = nullptr;

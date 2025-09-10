@@ -57,6 +57,7 @@ set(SOURCES
     src/scene_title.cpp
     src/screen/hud_button.cpp
     src/raw/timer.cpp
+    src/raw/bg_star.cpp
 )
 
 # 根据平台向"通用源文件"追加平台专属的文件

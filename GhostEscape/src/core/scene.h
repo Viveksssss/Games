@@ -29,6 +29,9 @@ public:
     virtual bool handleEvents(SDL_Event& event) override;
     virtual void clean() override;
 
+    virtual void saveData(const std::string& ){}
+    virtual void loadData(const std::string& ){}
+
     inline glm::vec2 worldToScreen(const glm::vec2& world_position) { return world_position - _camera_position; }
     inline glm::vec2 screenToWorld(const glm::vec2& screen_position) { return screen_position + _camera_position; }
     inline glm::vec2 getCameraPosition() const { return _camera_position; };

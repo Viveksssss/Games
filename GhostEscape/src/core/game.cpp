@@ -55,6 +55,7 @@ void Game::init(const std::string& title, int width, int height)
     SDL_SetRenderLogicalPresentation(_renderer, width, height, SDL_LOGICAL_PRESENTATION_LETTERBOX);
     // 资源类
     _asset_store = new AssetStore(_renderer);
+    _asset_store->init();
     // 初始化场景
     this->_current_scene = new SceneTitle();
     this->_current_scene->init();
@@ -281,14 +282,32 @@ glm::ivec2 Game::randomIvec2(const glm::ivec2& min, const glm::ivec2& max)
 
 void Game::updateMouse()
 {
+    // 1.0
     _mouse_buttons = SDL_GetMouseState(&_mouse_position.x, &_mouse_position.y);
+    // int w,h;
+    // SDL_GetWindowSize(this->_window, &w, &h);
+    // SDL_SetWindowAspectRatio(_window, 16.0 / 9, 16.0 / 9);
+    // _mouse_position *= this->_screen_size / glm::vec2(w, h);
+
+    // 2.0
+    // SDL_FRect rect;
+    // SDL_GetRenderLogicalPresentationRect(_renderer, &rect);
+    // _mouse_position = (_mouse_position - glm::vec2(rect.x, rect.y)) * _screen_size / glm::vec2(rect.w, rect.h);
 }
 
 void Game::setScore(int score)
 {
     _score = score;
     if (_score > _high_score) {
-        _score = _high_score;
+        _high_score = _score;
+    }
+}
+
+void Game::addScore(int score)
+{
+    _score += score;
+    if (_score > _high_score) {
+        _high_score = _score;
     }
 }
 
@@ -326,8 +345,21 @@ std::string Game::loadTextFile(const std::string& path)
     std::ifstream file(path);
     std::string line;
     std::string text;
-    while(std::getline(file,line)){
+    while (std::getline(file, line)) {
         text += line + "\n";
-    }  
+    }
     return text;
+}
+
+void Game::renderPoints(const std::vector<glm::vec2>& points, const glm::vec2& render_pos, SDL_FColor color)
+{
+    SDL_SetRenderDrawColorFloat(this->_renderer, color.r, color.g, color.b, color.a);
+    float x = 0;
+    float y = 0;
+    for (auto point : points) {
+        x = point.x + render_pos.x;
+        y = point.y + render_pos.y;
+        SDL_RenderPoint(this->_renderer, x, y);
+    }
+    SDL_SetRenderDrawColorFloat(this->_renderer, 0, 0, 0, 1);
 }

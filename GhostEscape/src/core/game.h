@@ -85,6 +85,8 @@ public:
     void renderBox(const glm::vec2& position, const glm::vec2& size, float alpha);
     // 渲染bar
     void renderHBar(const glm::vec2& position, const glm::vec2& size, float percentage, SDL_FColor color);
+    // 渲染点
+    void renderPoints(const std::vector<glm::vec2>& points, const glm::vec2& render_pos, SDL_FColor color);
     // 生成随机数
     float randomFloat(float min, float max);
     int randomInt(int min, int max);
@@ -123,10 +125,11 @@ public:
     int getScore() { return _score; }
     int getHighScore() { return _high_score; }
     void setHighScore(int high_score) { _high_score = high_score; }
-    void addScore(int score) { _score += score; }
+    void addScore(int score);
 
     bool isMouseInRect(const glm::vec2& top_left, const glm::vec2& bottom_right);
 
     std::string loadTextFile(const std::string& path);
+
 };
 #endif

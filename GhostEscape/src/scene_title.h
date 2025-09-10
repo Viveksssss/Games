@@ -5,6 +5,7 @@
 #include "screen/hud_button.h"
 
 class HUDText;
+class UIMouse;
 class SceneTitle : public Scene {
 protected:
     SDL_FColor _boundary_color = { 0.5, 0.5, 0.5, 1 };
@@ -13,6 +14,7 @@ protected:
     HUDButton* _btn_credits = nullptr;
     HUDButton* _btn_exit = nullptr;
     HUDText* _text_credits = nullptr;
+    UIMouse* _mouse = nullptr;
 
 public:
     virtual void init() override;
@@ -20,6 +22,8 @@ public:
     virtual void render() override;
     virtual void clean() override;
     virtual bool handleEvents(SDL_Event& event) override;
+
+    virtual void loadData(const std::string& filename) override;
 
     void checkBtnQuit();
     void checkBtnStart();

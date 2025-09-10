@@ -119,18 +119,26 @@ void Scene::clean()
     Object::clean();
     for (auto& child : _children) {
         child->clean();
+        delete child;
+        child = nullptr;
     }
     _children.clear();
     for (auto& child : _children_world) {
         child->clean();
+        delete child;
+        child = nullptr;
     }
     _children_world.clear();
     for (auto& child : _children_screen) {
         child->clean();
+        delete child;
+        child = nullptr;
     }
     _children_screen.clear();
     for (auto& child : _object_to_add) {
         child->clean();
+        delete child;
+        child = nullptr;
     }
     _object_to_add.clear();
 }

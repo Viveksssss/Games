@@ -23,6 +23,8 @@ public:
     TTF_Font* getFont(const std::string& path, int size);
 
     void clean();
+    void init();
+
 private:
     std::unordered_map<std::string, SDL_Texture*> textures;
     std::unordered_map<std::string, Mix_Music*> musics;

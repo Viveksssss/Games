@@ -8,8 +8,11 @@
 
 class WeaponThunder;
 class Effect;
+class Timer;
 class Player : public Actor {
 protected:
+    Timer* _hurt_timer = nullptr;
+
     SpriteAnim* _sprite_idle;
     SpriteAnim* _sprite_move;
     Effect* _effect_die;

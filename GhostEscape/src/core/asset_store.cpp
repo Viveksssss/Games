@@ -48,7 +48,7 @@ SDL_Texture* AssetStore::getTexture(const std::string& path)
         // 如果不存在或者是nullptr，都重新加载
         loadTexture(path);
         it = textures.find(path);
-    }       
+    }
     if (it == textures.end() || it->second == nullptr) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load texture: %s", path.c_str());
         return nullptr;
@@ -96,6 +96,39 @@ TTF_Font* AssetStore::getFont(const std::string& path, int size)
         return nullptr;
     }
     return it->second;
+}
+
+void AssetStore::init()
+{
+    textures.emplace("assets/UI/29.png", IMG_LoadTexture(_renderer, "assets/UI/29.png"));
+    textures.emplace("assets/UI/30.png", IMG_LoadTexture(_renderer, "assets/UI/30.png"));
+    textures.emplace("assets/UI/bar_bg.png", IMG_LoadTexture(_renderer, "assets/UI/bar_bg.png"));
+    textures.emplace("assets/UI/bar_blue.png", IMG_LoadTexture(_renderer, "assets/UI/bar_blue.png"));
+    textures.emplace("assets/UI/bar_green.png", IMG_LoadTexture(_renderer, "assets/UI/bar_green.png"));
+    textures.emplace("assets/UI/bar_red.png", IMG_LoadTexture(_renderer, "assets/UI/bar_red.png"));
+    textures.emplace("assets/UI/A_Back1.png", IMG_LoadTexture(_renderer, "assets/UI/A_Back1.png"));
+    textures.emplace("assets/UI/A_Back2.png", IMG_LoadTexture(_renderer, "assets/UI/A_Back2.png"));
+    textures.emplace("assets/UI/A_Back3.png", IMG_LoadTexture(_renderer, "assets/UI/A_Back3.png"));
+    textures.emplace("assets/UI/A_Credits1.png", IMG_LoadTexture(_renderer, "assets/UI/A_Credits1.png"));
+    textures.emplace("assets/UI/A_Credits2.png", IMG_LoadTexture(_renderer, "assets/UI/A_Credits2.png"));
+    textures.emplace("assets/UI/A_Credits3.png", IMG_LoadTexture(_renderer, "assets/UI/A_Credits3.png"));
+    textures.emplace("assets/UI/A_Pause1.png", IMG_LoadTexture(_renderer, "assets/UI/A_Pause1.png"));
+    textures.emplace("assets/UI/A_Pause2.png", IMG_LoadTexture(_renderer, "assets/UI/A_Pause2.png"));
+    textures.emplace("assets/UI/A_Pause3.png", IMG_LoadTexture(_renderer, "assets/UI/A_Pause3.png"));
+    textures.emplace("assets/UI/A_Quit1.png", IMG_LoadTexture(_renderer, "assets/UI/A_Quit1.png"));
+    textures.emplace("assets/UI/A_Quit2.png", IMG_LoadTexture(_renderer, "assets/UI/A_Quit2.png"));
+    textures.emplace("assets/UI/A_Quit3.png", IMG_LoadTexture(_renderer, "assets/UI/A_Quit3.png"));
+    textures.emplace("assets/UI/A_Restart1.png", IMG_LoadTexture(_renderer, "assets/UI/A_Restart1.png"));
+    textures.emplace("assets/UI/A_Restart2.png", IMG_LoadTexture(_renderer, "assets/UI/A_Restart2.png"));
+    textures.emplace("assets/UI/A_Restart3.png", IMG_LoadTexture(_renderer, "assets/UI/A_Restart3.png"));
+    textures.emplace("assets/UI/A_Start1.png", IMG_LoadTexture(_renderer, "assets/UI/A_Start1.png"));
+    textures.emplace("assets/UI/A_Start2.png", IMG_LoadTexture(_renderer, "assets/UI/A_Start2.png"));
+    textures.emplace("assets/UI/A_Start3.png", IMG_LoadTexture(_renderer, "assets/UI/A_Start3.png"));
+    textures.emplace("assets/UI/Blue Potion.png", IMG_LoadTexture(_renderer, "assets/UI/Blue Potion.png"));
+    textures.emplace("assets/UI/Electric-Icon.png", IMG_LoadTexture(_renderer, "assets/UI/Electric-Icon.png"));
+    textures.emplace("assets/UI/Green Potion.png", IMG_LoadTexture(_renderer, "assets/UI/Green Potion.png"));
+    textures.emplace("assets/UI/Red Potion.png", IMG_LoadTexture(_renderer, "assets/UI/Red Potion.png"));
+    textures.emplace("assets/UI/Textfield_01.png", IMG_LoadTexture(_renderer, "assets/UI/Textfield_01.png"));
 }
 
 void AssetStore::clean()

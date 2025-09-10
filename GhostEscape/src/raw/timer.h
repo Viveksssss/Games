@@ -21,6 +21,8 @@ public:
     bool timeOut();
     void start() { is_active = true; }
     void stop() { is_active = false; }
+
+    float getProcess();
 };
 
 #endif

@@ -3,6 +3,7 @@
 #include "affiliate/sprite_anim.h"
 #include "core/scene.h"
 #include "raw/stats.h"
+#include "raw/timer.h"
 #include "weapon_thunder.h"
 #include "world/effect.h"
 
@@ -23,9 +24,13 @@ void Player::init()
     // 碰撞盒
     _collider = Collider::create(this, _sprite_idle->getSize() / 1.5f);
     // 死亡效果
-    _effect_die = Effect::create(nullptr, "assets/effect/1764.png", glm::vec2(0), 2.0f, nullptr);
+    _effect_die = Effect::create(game.getCurrentScene(), "assets/effect/1764.png", glm::vec2(0), 2.0f, nullptr);
+    _effect_die->setActive(false);
     // 武器
     _weapon_thunder = WeaponThunder::create(this, 2.0f, 40.0f);
+    // 闪烁计时器
+    _hurt_timer = Timer::create(this, 0.4f);
+    _hurt_timer->start();
 }
 
 void Player::update([[maybe_unused]] float dt)
@@ -47,6 +52,9 @@ void Player::update([[maybe_unused]] float dt)
 
 void Player::render()
 {
+    if (stats->getInvincible() && _hurt_timer->getProcess() > 0.5f) {
+        return;
+    }
     Actor::render();
 }
 
@@ -57,14 +65,16 @@ void Player::clean()
 
 bool Player::handleEvents(SDL_Event& event)
 {
-    if(Actor::handleEvents(event))return true;
+    if (Actor::handleEvents(event))
+        return true;
     return false;
 }
 
 void Player::takeDamage(float damage)
 {
-    if(!stats || stats->getInvincible()) return;
-    Actor::takeDamage(damage); 
+    if (!stats || stats->getInvincible())
+        return;
+    Actor::takeDamage(damage);
     game.playSound("assets/sound/hit-flesh-02-266309.mp3");
 }
 
@@ -127,7 +137,7 @@ void Player::changeStates(bool is_moving)
 void Player::checkDead()
 {
     if (!isAlive()) {
-        game.getCurrentScene()->safeAddChild(_effect_die);
+        _effect_die->setActive(true);
         _effect_die->setPosition(getPosition());
         setActive(false);
         game.playSound("assets/sound/female-scream-02-89290.mp3");

@@ -22,6 +22,7 @@ public:
     virtual void clean() override;
     void render_background();
     void update_score();
+    virtual void saveData(const std::string& filename) override;
 
 private:
     Player* player = nullptr;
@@ -34,11 +35,16 @@ private:
     HUDButton* btn_back = nullptr;
     Timer* end_timer = nullptr;
 
+    float start = 0.0f;
+    float timer = 0.0f;
+
 private:
     void checkBtnPause();
     void checkBtnRestart();
     void checkBtnBack();
     void checkEndTimer();
+    void checkSlowDown(float& dt);
+    void updateTime(float dt);
 };
 
 #endif

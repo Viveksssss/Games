@@ -2,30 +2,39 @@
 #include "scene_main.h"
 #include "screen/hud_button.h"
 #include "screen/hud_text.h"
+#include "screen/ui_mouse.h"
 #include <SDL3/SDL_timer.h>
+
+#include <fstream>
 
 void SceneTitle::init()
 {
     Scene::init();
-    SDL_ShowCursor();
+    loadData("assets/score.dat");
+
+    SDL_HideCursor();
     game.playMusic("assets/bgm/Spooky music.mp3");
 
     glm::vec2 size = glm::vec2(game.getScreenSize().x / 2.0f, game.getScreenSize().y / 3.0f);
     HUDText::create(this, "幽 灵 逃 生", game.getScreenSize() / 2.0f - glm::vec2(0, 100), size, "assets/font/VonwaonBitmap-16px.ttf", 64);
     auto score_text = "最高分: " + std::to_string(game.getHighScore());
-    HUDText::create(this, score_text, game.getScreenSize() / 2.0f + glm::vec2(0, 150), glm::vec2(500, 50), "assets/font/VonwaonBitmap-16px.ttf", 32);
-
+    
     // 离开按钮
     _btn_exit = HUDButton::create(this, game.getScreenSize() / 2.0f + glm::vec2(300, 300), "assets/UI/A_Quit1.png", "assets/UI/A_Quit2.png", "assets/UI/A_Quit3.png", 2.0f);
+    HUDText::create(this, score_text, game.getScreenSize() / 2.0f + glm::vec2(0, 150), glm::vec2(500, 50), "assets/font/VonwaonBitmap-16px.ttf", 32);
     // 开始按钮
     _btn_start = HUDButton::create(this, game.getScreenSize() / 2.0f + glm::vec2(-300, 300), "assets/UI/A_Start1.png", "assets/UI/A_Start2.png", "assets/UI/A_Start3.png", 2.0f);
-
+    
     // 得到credits文字
     auto text = game.loadTextFile("assets/credits.txt");
     _text_credits = HUDText::create(this, text, game.getScreenSize() / 2.0f, glm::vec2(300, 300), "assets/font/VonwaonBitmap-16px.ttf", 16);
     _text_credits->adaptBgSize();
     _text_credits->setActive(false);
     _btn_credits = HUDButton::create(this, game.getScreenSize() / 2.0f + glm::vec2(0, 300), "assets/UI/A_Credits1.png", "assets/UI/A_Credits2.png", "assets/UI/A_Credits3.png", 2.0f);
+    
+    // 鼠标ui
+    _mouse = UIMouse::create(this, "assets/UI/29.png", "assets/UI/30.png", 1.0f, Anchor::CENTER);
+    
 }
 
 void SceneTitle::update(float dt)
@@ -53,6 +62,17 @@ bool SceneTitle::handleEvents(SDL_Event& event)
     if (Scene::handleEvents(event))
         return true;
     return false;
+}
+
+void SceneTitle::loadData(const std::string& filename)
+{
+    int score = 0;
+    std::ifstream file(filename, std::ios::binary);
+    if (file.is_open()) {
+        file.read(reinterpret_cast<char*>(&score), sizeof(score));
+        file.close();
+    }
+    game.setHighScore(score);
 }
 
 void SceneTitle::checkBtnQuit()

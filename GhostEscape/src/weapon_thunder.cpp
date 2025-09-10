@@ -1,8 +1,8 @@
 #include "weapon_thunder.h"
 #include "core/actor.h"
 #include "core/scene.h"
-#include "world/spell.h"
 #include "screen/hud_skill.h"
+#include "world/spell.h"
 
 bool WeaponThunder::handleEvents(SDL_Event& event)
 {
@@ -37,15 +37,14 @@ WeaponThunder* WeaponThunder::create(Actor* parent, float cool_down, float mana_
 void WeaponThunder::init()
 {
     Weapon::init();
-    auto pos = glm::vec2(game.getScreenSize().x - 500,50);
-    _hud_skill = HUDSkill::create(game.getCurrentScene(),"assets/UI/Electric-Icon.png",pos,0.3f,Anchor::CENTER);
-
+    auto pos = glm::vec2(game.getScreenSize().x - 500, 50);
+    _hud_skill = HUDSkill::create(game.getCurrentScene(), "assets/UI/Electric-Icon.png", pos, 0.3f, Anchor::CENTER);
 }
 
 void WeaponThunder::update(float delta)
 {
     Weapon::update(delta);
-    if(_hud_skill){
-        _hud_skill->setPercentage(_cool_down_timer/_cool_down);
+    if (_hud_skill) {
+        _hud_skill->setPercentage(_cool_down_timer / _cool_down);
     }
 }
