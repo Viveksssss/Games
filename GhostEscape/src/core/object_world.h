@@ -7,6 +7,7 @@ class ObjectWorld : public ObjectScreen {
 protected:
     // 世界坐标
     glm::vec2 world_position = glm::vec2(0.0f, 0.0f);
+    // 碰撞盒
     Collider* _collider = nullptr;
 
 public:

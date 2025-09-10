@@ -48,7 +48,7 @@ private:
     // 帧延迟：ns
     float _frame_delay = 0.0f;
     // 帧率：fps
-    float _FPS = 240.0f;
+    float _FPS = 120.0f;
     // 随机数
     std::mt19937 gen = std::mt19937(std::random_device {}());
 
