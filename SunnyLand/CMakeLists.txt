@@ -34,6 +34,11 @@ find_package(spdlog REQUIRED)
 set(SOURCES
     src/main.cpp
     src/engine/core/game_app.cpp
+    src/engine/core/time.cpp
+    src/engine/resource/resource_manager.cpp
+    src/engine/resource/audio_manager.cpp
+    src/engine/resource/texture_manager.cpp
+    src/engine/resource/font_manager.cpp
 )
 
 # 根据平台向"通用源文件"追加平台专属的文件
