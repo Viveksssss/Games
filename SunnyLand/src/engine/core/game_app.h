@@ -9,6 +9,11 @@ namespace engine::resource {
 class ResourceManager;
 }
 
+namespace engine::render {
+class Renderer;
+class Camera;
+}
+
 namespace engine::core {
 
 class Time;
@@ -16,11 +21,13 @@ class GameApp final {
 
 private:
     SDL_Window* _window = nullptr;
-    SDL_Renderer* _renderer = nullptr;
+    SDL_Renderer* _sdl_renderer = nullptr;
     bool _is_running = false;
 
     std::unique_ptr<engine::core::Time> _time;
     std::unique_ptr<engine::resource::ResourceManager> _resource_manager;
+    std::unique_ptr<engine::render::Renderer> _renderer;
+    std::unique_ptr<engine::render::Camera> _camera;
 
 public:
     GameApp();
@@ -41,11 +48,15 @@ private:
     void close();
 
     /* 各模块的初始化函数，最后 在init调用 */
-    bool initSDL();
-    bool initTime();
-    bool initResourceManager();
+    [[nodiscard]] bool initSDL();
+    [[nodiscard]] bool initTime();
+    [[nodiscard]] bool initResourceManager();
+    [[nodiscard]] bool initRenderer();
+    [[nodiscard]] bool initCamera();
 
     void testResourceManager();
+    void testRenderer();
+    void testCamera();
 };
 
 }
