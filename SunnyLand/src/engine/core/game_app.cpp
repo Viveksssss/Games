@@ -8,6 +8,7 @@
 #include "../render/camera.h"
 #include "../render/renderer.h"
 #include "../resource/resource_manager.h"
+#include "config.h"
 
 #include "time.h"
 
@@ -49,6 +50,8 @@ bool GameApp::init()
 
     spdlog::trace("初始化GameApp...");
 
+    if (!initConfig())
+        return false;
     if (!initSDL())
         return false;
     if (!initTime())
@@ -106,6 +109,17 @@ void GameApp::close()
     _is_running = false;
 }
 
+bool GameApp::initConfig()
+{
+    try {
+        _config = std::make_unique<engine::core::Config>("assets/config.json");
+    } catch (const std::exception& e) {
+        spdlog::error("初始化配置文件失败: {}", e.what());
+        return false;
+    }
+    return true;
+}
+
 bool GameApp::initSDL()
 {
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
@@ -113,7 +127,7 @@ bool GameApp::initSDL()
         return false;
     }
 
-    _window = SDL_CreateWindow("SunnyLand", 1920, 1080, SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN);
+    _window = SDL_CreateWindow("SunnyLand", _config->_window_width, _config->_window_height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN);
     if (_window == nullptr) {
         spdlog::error("无法创建窗口!错误:{}...", SDL_GetError());
         return false;
@@ -124,6 +138,13 @@ bool GameApp::initSDL()
         spdlog::error("无法创建渲染器!错误:{}...", SDL_GetError());
         return false;
     }
+
+    int vsync = _config->_vsync_enabled ? SDL_RENDERER_VSYNC_ADAPTIVE : SDL_RENDERER_VSYNC_DISABLED;
+    SDL_SetRenderVSync(_sdl_renderer, vsync);
+    spdlog::info("VSync:{}", vsync);
+
+    SDL_SetRenderLogicalPresentation(_sdl_renderer, _config->_window_width/2, _config->_window_height/2 , SDL_LOGICAL_PRESENTATION_LETTERBOX);
+
     spdlog::debug("SDL 初始化成功...");
 
     // SDL_RenderPresent(_sdl_renderer);
@@ -138,6 +159,7 @@ bool GameApp::initTime()
         spdlog::error("初始化时间管理失败: {}", e.what());
         return false;
     }
+    _time->setTargetFPS(_config->_target_fps);
     spdlog::debug("时间管理初始化成功。");
     return true;
 }
@@ -170,7 +192,7 @@ bool GameApp::initRenderer()
 bool GameApp::initCamera()
 {
     try {
-        _camera = std::make_unique<engine::render::Camera>(glm::vec2(1920, 1080));
+        _camera = std::make_unique<engine::render::Camera>(glm::vec2(_config->_window_width/2, _config->_window_height/2));
     } catch (const std::exception& e) {
         spdlog::error("初始化摄像机失败: {}", e.what());
         return false;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "config.h"
 #include <memory>
 
 struct SDL_Window;
@@ -16,6 +17,7 @@ class Camera;
 
 namespace engine::core {
 
+class Config;
 class Time;
 class GameApp final {
 
@@ -28,6 +30,7 @@ private:
     std::unique_ptr<engine::resource::ResourceManager> _resource_manager;
     std::unique_ptr<engine::render::Renderer> _renderer;
     std::unique_ptr<engine::render::Camera> _camera;
+    std::unique_ptr<engine::core::Config> _config;
 
 public:
     GameApp();
@@ -48,6 +51,7 @@ private:
     void close();
 
     /* 各模块的初始化函数，最后 在init调用 */
+    [[nodiscard]] bool initConfig();
     [[nodiscard]] bool initSDL();
     [[nodiscard]] bool initTime();
     [[nodiscard]] bool initResourceManager();
