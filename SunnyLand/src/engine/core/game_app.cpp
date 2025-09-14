@@ -1,13 +1,14 @@
 #include "game_app.h"
 
+#include "../input/input_manager.h"
+#include "../render/camera.h"
+#include "../render/renderer.h"
+#include "../resource/resource_manager.h"
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_video.h>
 #include <spdlog/spdlog.h>
 
-#include "../render/camera.h"
-#include "../render/renderer.h"
-#include "../resource/resource_manager.h"
 #include "config.h"
 
 #include "time.h"
@@ -35,6 +36,8 @@ void GameApp::run()
         // float dt = 0.01f;
         _time->update();
         float dt = _time->getDeltaTime();
+        _input_manager->update();
+
         handleEvents();
         update(dt);
         render();
@@ -62,6 +65,8 @@ bool GameApp::init()
         return false;
     if (!initCamera())
         return false;
+    if (!initInputManager())
+        return false;
 
     testResourceManager();
 
@@ -72,12 +77,12 @@ bool GameApp::init()
 
 void GameApp::handleEvents()
 {
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_EVENT_QUIT) {
-            _is_running = false;
-        }
+    if (_input_manager->shouldQuit()) {
+        spdlog::debug("GameApp 接收到退出事件，准备关闭...");
+        _is_running = false;
+        return;
     }
+    testInputManager();
 }
 
 void GameApp::update(float)
@@ -143,7 +148,7 @@ bool GameApp::initSDL()
     SDL_SetRenderVSync(_sdl_renderer, vsync);
     spdlog::info("VSync:{}", vsync);
 
-    SDL_SetRenderLogicalPresentation(_sdl_renderer, _config->_window_width/2, _config->_window_height/2 , SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    SDL_SetRenderLogicalPresentation(_sdl_renderer, _config->_window_width / 2, _config->_window_height / 2, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
     spdlog::debug("SDL 初始化成功...");
 
@@ -192,12 +197,24 @@ bool GameApp::initRenderer()
 bool GameApp::initCamera()
 {
     try {
-        _camera = std::make_unique<engine::render::Camera>(glm::vec2(_config->_window_width/2, _config->_window_height/2));
+        _camera = std::make_unique<engine::render::Camera>(glm::vec2(_config->_window_width / 2, _config->_window_height / 2));
     } catch (const std::exception& e) {
         spdlog::error("初始化摄像机失败: {}", e.what());
         return false;
     }
     spdlog::debug("摄像机初始化成功。");
+    return true;
+}
+
+bool GameApp::initInputManager()
+{
+    try {
+        _input_manager = std::make_unique<engine::input::InputManager>(_sdl_renderer, _config.get());
+    } catch (const std::exception& e) {
+        spdlog::error("初始化输入管理器失败: {}", e.what());
+        return false;
+    }
+    spdlog::trace("输入管理器初始化成功。");
     return true;
 }
 
@@ -238,6 +255,33 @@ void GameApp::testCamera()
         _camera->move(glm::vec2(-1, 0));
     if (key_state[SDL_SCANCODE_RIGHT])
         _camera->move(glm::vec2(1, 0));
+}
+
+void GameApp::testInputManager()
+{
+     std::vector<std::string> actions = {
+            "move_up",
+            "move_down",
+            "move_left",
+            "move_right",
+            "jump",
+            "attack",
+            "pause",
+            "MouseLeftClick",
+            "MouseRightClick"
+        };
+    
+        for (const auto& action : actions) {
+            if (_input_manager->isActionPressed(action)) {
+                spdlog::info(" {} 按下 ", action);
+            }
+            if (_input_manager->isActionReleased(action)) {
+                spdlog::info(" {} 抬起 ", action);
+            }
+            if (_input_manager->isActionDown(action)) {
+                spdlog::info(" {} 按下中 ", action);
+            }
+        }
 }
 
 GameApp::GameApp() = default;

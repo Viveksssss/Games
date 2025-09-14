@@ -1,10 +1,13 @@
 #pragma once
 
-#include "config.h"
-#include <memory>
 
+#include <memory>
 struct SDL_Window;
 struct SDL_Renderer;
+
+namespace engine::input {
+class InputManager;
+}
 
 namespace engine::resource {
 class ResourceManager;
@@ -31,6 +34,7 @@ private:
     std::unique_ptr<engine::render::Renderer> _renderer;
     std::unique_ptr<engine::render::Camera> _camera;
     std::unique_ptr<engine::core::Config> _config;
+    std::unique_ptr<engine::input::InputManager> _input_manager;
 
 public:
     GameApp();
@@ -57,10 +61,12 @@ private:
     [[nodiscard]] bool initResourceManager();
     [[nodiscard]] bool initRenderer();
     [[nodiscard]] bool initCamera();
+    [[nodiscard]] bool initInputManager();
 
     void testResourceManager();
     void testRenderer();
     void testCamera();
+    void testInputManager();
 };
 
 }
