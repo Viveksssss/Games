@@ -17,6 +17,10 @@ class Renderer;
 class Camera;
 }
 
+namespace engine::scene {
+class SceneManager;
+}
+
 namespace engine::core {
 
 class Config;
@@ -36,6 +40,7 @@ private:
     std::unique_ptr<engine::core::Config> _config;
     std::unique_ptr<engine::input::InputManager> _input_manager;
     std::unique_ptr<engine::core::Context> _context;
+    std::unique_ptr<engine::scene::SceneManager> _scene_manager;
 
 public:
     GameApp();
@@ -64,12 +69,7 @@ private:
     [[nodiscard]] bool initCamera();
     [[nodiscard]] bool initInputManager();
     [[nodiscard]] bool initContext();
-
-    void testResourceManager();
-    void testRenderer();
-    void testCamera();
-    void testInputManager();
-    void testGameObject();
+    [[nodiscard]] bool initSceneManager();
 };
 
 }

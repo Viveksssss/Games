@@ -35,7 +35,7 @@ public:
     inline void setTag(const std::string& tag) { _tag = tag; }
     inline const std::string& getTag() const { return _tag; }
     inline void setNeedRemove(bool need_remove) { _need_remove = need_remove; }
-    inline bool getNeedRemove() const { return _need_remove; }
+    inline bool isNeedRemove() const { return _need_remove; }
 
     /**
      * @brief 添加组件

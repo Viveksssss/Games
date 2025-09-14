@@ -1,12 +1,13 @@
 #include "game_app.h"
 
+#include "../../game/scene/game_scene.h"
 #include "../component/sprite_component.h"
-#include "../component/transform_component.h"
 #include "../input/input_manager.h"
 #include "../object/game_object.h"
 #include "../render/camera.h"
 #include "../render/renderer.h"
 #include "../resource/resource_manager.h"
+#include "../scene/scene_manager.h"
 #include "context.h"
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_render.h>
@@ -73,9 +74,11 @@ bool GameApp::init()
         return false;
     if (!initContext())
         return false;
+    if (!initSceneManager())
+        return false;
 
-    testResourceManager();
-    testGameObject();
+    auto scene = std::make_unique<game::scene::GameScene>("GameScene", *_context, *_scene_manager);
+    _scene_manager->requestPushScene(std::move(scene));
 
     _is_running = true;
 
@@ -89,20 +92,19 @@ void GameApp::handleEvents()
         _is_running = false;
         return;
     }
-    testInputManager();
+    _scene_manager->handleInput();
 }
 
-void GameApp::update(float)
+void GameApp::update(float dt)
 {
-    testCamera();
+    _scene_manager->update(dt);
 }
 
 void GameApp::render()
 {
     _renderer->clearScreen();
 
-    testRenderer();
-    obj.render(*_context);
+    _scene_manager->render();
 
     _renderer->present();
 }
@@ -237,79 +239,15 @@ bool GameApp::initContext()
     return true;
 }
 
-void GameApp::testResourceManager()
+bool GameApp::initSceneManager()
 {
-    _resource_manager->getTexture("assets/textures/Actors/eagle-attack.png");
-    _resource_manager->getFont("assets/fonts/VonwaonBitmap-16px.ttf", 16);
-    _resource_manager->getSound("assets/audio/button_click.wav");
-
-    _resource_manager->unloadTexture("assets/textures/Actors/eagle-attack.png");
-    _resource_manager->unloadFont("assets/fonts/VonwaonBitmap-16px.ttf", 16);
-    _resource_manager->unloadSound("assets/audio/button_click.wav");
-}
-
-void GameApp::testRenderer()
-{
-    engine::render::Sprite sprite_world("assets/textures/Actors/frog.png");
-    engine::render::Sprite sprite_ui("assets/textures/UI/buttons/Start1.png");
-    engine::render::Sprite sprite_parallax("assets/textures/Layers/back.png");
-
-    static float rotation = 0.0f;
-    rotation += 0.1f;
-
-    // 注意渲染顺序
-    _renderer->drawParallax(*_camera, sprite_parallax, glm::vec2(0, 0), glm::vec2(0.5f, 0.5f), glm::bvec2(true, false));
-    _renderer->drawSprite(*_camera, sprite_world, glm::vec2(200, 200), glm::vec2(1.0f, 1.0f), rotation);
-    _renderer->drawUISprite(sprite_ui, glm::vec2(100, 100));
-}
-
-void GameApp::testCamera()
-{
-    auto key_state = SDL_GetKeyboardState(nullptr);
-    if (key_state[SDL_SCANCODE_UP])
-        _camera->move(glm::vec2(0, -1));
-    if (key_state[SDL_SCANCODE_DOWN])
-        _camera->move(glm::vec2(0, 1));
-    if (key_state[SDL_SCANCODE_LEFT])
-        _camera->move(glm::vec2(-1, 0));
-    if (key_state[SDL_SCANCODE_RIGHT])
-        _camera->move(glm::vec2(1, 0));
-}
-
-void GameApp::testInputManager()
-{
-    std::vector<std::string> actions = {
-        "move_up",
-        "move_down",
-        "move_left",
-        "move_right",
-        "jump",
-        "attack",
-        "pause",
-        "MouseLeftClick",
-        "MouseRightClick"
-    };
-
-    for (const auto& action : actions) {
-        if (_input_manager->isActionPressed(action)) {
-            spdlog::info(" {} 按下 ", action);
-        }
-        if (_input_manager->isActionReleased(action)) {
-            spdlog::info(" {} 抬起 ", action);
-        }
-        if (_input_manager->isActionDown(action)) {
-            spdlog::info(" {} 按下中 ", action);
-        }
+    try {
+        _scene_manager = std::make_unique<engine::scene::SceneManager>(*_context);
+    } catch (const std::exception& e) {
+        spdlog::error("初始化场景管理器失败: {}", e.what());
+        return false;
     }
-}
-
-void GameApp::testGameObject()
-{
-    obj.addComponent<engine::component::TransformComponent>(glm::vec2(100, 100));
-    obj.addComponent<engine::component::SpriteComponent>("assets/textures/Props/big-crate.png", *_resource_manager, engine::utils::Alignment::MIDDLE_CENTER);
-    obj.getComponent<engine::component::TransformComponent>()->setScale(glm::vec2(2.0f, 2.0f));
-    float r = 50.0f;
-    obj.getComponent<engine::component::TransformComponent>()->setRotation(r);
+    return true;
 }
 
 GameApp::GameApp() = default;
