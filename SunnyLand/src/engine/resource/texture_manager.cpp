@@ -30,6 +30,7 @@ SDL_Texture* TextureManager::loadTexture(const std::string& file_path)
     }
 
     _textures.emplace(file_path, std::unique_ptr<SDL_Texture, SDLTextureDeleter>(texture));
+    spdlog::debug("Loaded texture: {}", file_path);
     return texture;
 }
 

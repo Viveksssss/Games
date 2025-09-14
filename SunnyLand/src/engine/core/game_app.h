@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <memory>
 struct SDL_Window;
 struct SDL_Renderer;
@@ -22,6 +21,7 @@ namespace engine::core {
 
 class Config;
 class Time;
+class Context;
 class GameApp final {
 
 private:
@@ -35,6 +35,7 @@ private:
     std::unique_ptr<engine::render::Camera> _camera;
     std::unique_ptr<engine::core::Config> _config;
     std::unique_ptr<engine::input::InputManager> _input_manager;
+    std::unique_ptr<engine::core::Context> _context;
 
 public:
     GameApp();
@@ -62,6 +63,7 @@ private:
     [[nodiscard]] bool initRenderer();
     [[nodiscard]] bool initCamera();
     [[nodiscard]] bool initInputManager();
+    [[nodiscard]] bool initContext();
 
     void testResourceManager();
     void testRenderer();

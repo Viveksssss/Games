@@ -9,17 +9,17 @@ GameObject::GameObject(const std::string& name, const std::string& tag)
     spdlog::debug("GameObject::GameObject() called, name: {}, tag: {}", _name, _tag);
 }
 
-void GameObject::update(float dt)
+void GameObject::update(float dt, engine::core::Context& context)
 {
     for (auto& pair : _components) {
-        pair.second->update(dt);
+        pair.second->update(dt, context);
     }
 }
 
-void GameObject::render()
+void GameObject::render(engine::core::Context& context)
 {
     for (auto& pair : _components) {
-        pair.second->render();
+        pair.second->render(context);
     }
 }
 
@@ -31,10 +31,10 @@ void GameObject::clean()
     _components.clear();
 }
 
-void GameObject::handleInput()
+void GameObject::handleInput(engine::core::Context& context)
 {
     for (auto& pair : _components) {
-        pair.second->handleInput();
+        pair.second->handleInput(context);
     }
 }
 

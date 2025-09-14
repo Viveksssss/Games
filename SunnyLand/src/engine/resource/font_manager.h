@@ -3,7 +3,6 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include <functional>
 #include <memory>
-#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <utility>

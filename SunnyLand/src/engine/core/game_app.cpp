@@ -1,10 +1,13 @@
 #include "game_app.h"
 
+#include "../component/sprite_component.h"
+#include "../component/transform_component.h"
 #include "../input/input_manager.h"
 #include "../object/game_object.h"
 #include "../render/camera.h"
 #include "../render/renderer.h"
 #include "../resource/resource_manager.h"
+#include "context.h"
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_video.h>
@@ -15,7 +18,7 @@
 #include "time.h"
 
 namespace engine::core {
-
+engine::object::GameObject obj("test_game_object");
 GameApp::~GameApp()
 {
     if (_is_running) {
@@ -68,6 +71,8 @@ bool GameApp::init()
         return false;
     if (!initInputManager())
         return false;
+    if (!initContext())
+        return false;
 
     testResourceManager();
     testGameObject();
@@ -97,6 +102,7 @@ void GameApp::render()
     _renderer->clearScreen();
 
     testRenderer();
+    obj.render(*_context);
 
     _renderer->present();
 }
@@ -220,6 +226,17 @@ bool GameApp::initInputManager()
     return true;
 }
 
+bool GameApp::initContext()
+{
+    try {
+        _context = std::make_unique<engine::core::Context>(*_input_manager, *_renderer, *_camera, *_resource_manager);
+    } catch (const std::exception& e) {
+        spdlog::error("初始化上下文失败: {}", e.what());
+        return false;
+    }
+    return true;
+}
+
 void GameApp::testResourceManager()
 {
     _resource_manager->getTexture("assets/textures/Actors/eagle-attack.png");
@@ -288,8 +305,11 @@ void GameApp::testInputManager()
 
 void GameApp::testGameObject()
 {
-    engine::object::GameObject obj("test_obj");
-    obj.addComponent<engine::component::Component>();
+    obj.addComponent<engine::component::TransformComponent>(glm::vec2(100, 100));
+    obj.addComponent<engine::component::SpriteComponent>("assets/textures/Props/big-crate.png", *_resource_manager, engine::utils::Alignment::MIDDLE_CENTER);
+    obj.getComponent<engine::component::TransformComponent>()->setScale(glm::vec2(2.0f, 2.0f));
+    float r = 50.0f;
+    obj.getComponent<engine::component::TransformComponent>()->setRotation(r);
 }
 
 GameApp::GameApp() = default;

@@ -92,11 +92,12 @@ public:
         }
     }
 
-private:
-    void update(float);
-    void render();
+    void update(float, engine::core::Context&);
+    void render(engine::core::Context&);
     void clean();
-    void handleInput();
+    void handleInput(engine::core::Context&);
+
+private:
 };
 
 }

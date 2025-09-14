@@ -44,6 +44,9 @@ set(SOURCES
     src/engine/core/config.cpp
     src/engine/input/input_manager.cpp
     src/engine/object/game_object.cpp
+    src/engine/core/context.cpp
+    src/engine/component/sprite_component.cpp
+    src/engine/component/transform_component.cpp
 )
 
 # 根据平台向"通用源文件"追加平台专属的文件

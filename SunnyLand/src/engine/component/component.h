@@ -4,6 +4,10 @@ namespace engine::object {
 class GameObject;
 }
 
+namespace engine::core {
+class Context;
+}
+
 namespace engine::component {
 
 /**
@@ -31,9 +35,9 @@ public:
 
 protected:
     virtual void init() { }
-    virtual void handleInput() { }
-    virtual void update(float) { }
-    virtual void render() { }
+    virtual void handleInput(engine::core::Context&) { }
+    virtual void update(float, engine::core::Context&) { }
+    virtual void render(engine::core::Context&) { }
     virtual void clean() { }
 };
 
