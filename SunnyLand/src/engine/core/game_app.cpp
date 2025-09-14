@@ -1,6 +1,7 @@
 #include "game_app.h"
 
 #include "../input/input_manager.h"
+#include "../object/game_object.h"
 #include "../render/camera.h"
 #include "../render/renderer.h"
 #include "../resource/resource_manager.h"
@@ -69,6 +70,7 @@ bool GameApp::init()
         return false;
 
     testResourceManager();
+    testGameObject();
 
     _is_running = true;
 
@@ -259,29 +261,35 @@ void GameApp::testCamera()
 
 void GameApp::testInputManager()
 {
-     std::vector<std::string> actions = {
-            "move_up",
-            "move_down",
-            "move_left",
-            "move_right",
-            "jump",
-            "attack",
-            "pause",
-            "MouseLeftClick",
-            "MouseRightClick"
-        };
-    
-        for (const auto& action : actions) {
-            if (_input_manager->isActionPressed(action)) {
-                spdlog::info(" {} 按下 ", action);
-            }
-            if (_input_manager->isActionReleased(action)) {
-                spdlog::info(" {} 抬起 ", action);
-            }
-            if (_input_manager->isActionDown(action)) {
-                spdlog::info(" {} 按下中 ", action);
-            }
+    std::vector<std::string> actions = {
+        "move_up",
+        "move_down",
+        "move_left",
+        "move_right",
+        "jump",
+        "attack",
+        "pause",
+        "MouseLeftClick",
+        "MouseRightClick"
+    };
+
+    for (const auto& action : actions) {
+        if (_input_manager->isActionPressed(action)) {
+            spdlog::info(" {} 按下 ", action);
         }
+        if (_input_manager->isActionReleased(action)) {
+            spdlog::info(" {} 抬起 ", action);
+        }
+        if (_input_manager->isActionDown(action)) {
+            spdlog::info(" {} 按下中 ", action);
+        }
+    }
+}
+
+void GameApp::testGameObject()
+{
+    engine::object::GameObject obj("test_obj");
+    obj.addComponent<engine::component::Component>();
 }
 
 GameApp::GameApp() = default;
