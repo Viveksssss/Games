@@ -1,225 +1,252 @@
 #include "game_app.h"
-
-#include "../../game/scene/game_scene.h"
-#include "../component/sprite_component.h"
-#include "../input/input_manager.h"
-#include "../object/game_object.h"
-#include "../render/camera.h"
-#include "../render/renderer.h"
-#include "../resource/resource_manager.h"
-#include "../scene/scene_manager.h"
+#include "time.h"
 #include "context.h"
-#include <SDL3/SDL_init.h>
-#include <SDL3/SDL_render.h>
-#include <SDL3/SDL_video.h>
+#include "config.h"
+#include "game_state.h"
+#include "../resource/resource_manager.h"
+#include "../audio/audio_player.h"
+#include "../render/renderer.h"
+#include "../render/camera.h"
+#include "../render/text_renderer.h"
+#include "../input/input_manager.h"
+#include "../physics/physics_engine.h"
+#include "../scene/scene_manager.h"
+#include <SDL3/SDL.h>
 #include <spdlog/spdlog.h>
 
-#include "config.h"
-
-#include "time.h"
-
 namespace engine::core {
-engine::object::GameObject obj("test_game_object");
-GameApp::~GameApp()
-{
-    if (_is_running) {
-        spdlog::warn("GameApp 未显示关闭，现在关闭...");
+
+GameApp::GameApp() = default;
+
+GameApp::~GameApp() {
+    if (is_running_) {
+        spdlog::warn("GameApp 被销毁时没有显式关闭。现在关闭。 ...");
         close();
     }
 }
 
-void GameApp::run()
-{
+void GameApp::run() {
     if (!init()) {
-        spdlog::error("初始化失败，无法进行游戏...");
+        spdlog::error("GameApp 初始化失败，无法运行游戏。");
         return;
     }
 
-    _time->setTargetFPS(240);
-
-    while (_is_running) {
-        // float dt = 0.01f;
-        _time->update();
-        float dt = _time->getDeltaTime();
-        _input_manager->update();
-
+    while (is_running_) {
+        time_->update();
+        float delta_time = time_->getDeltaTime();
+        input_manager_->update();   // 每帧首先更新输入管理器
+        
         handleEvents();
-        update(dt);
+        update(delta_time);
         render();
-        // spdlog::info("delta_time:{}", _time->getDeltaTime());
+
+        // spdlog::info("delta_time: {}", delta_time);
     }
 
     close();
 }
 
-bool GameApp::init()
+void GameApp::registerSceneSetup(std::function<void(engine::scene::SceneManager &)> func)
 {
-    spdlog::set_level(spdlog::level::debug);
+    scene_setup_func_ = std::move(func);
+    spdlog::trace("已注册场景设置函数。");
+}
 
-    spdlog::trace("初始化GameApp...");
+bool GameApp::init() {
+    spdlog::trace("初始化 GameApp ...");
+    if (!scene_setup_func_) {
+        spdlog::error("未注册场景设置函数，无法初始化 GameApp。");
+        return false;
+    }
+    if (!initConfig()) return false;
+    if (!initSDL())  return false;
+    if (!initTime()) return false;
+    if (!initResourceManager()) return false;
+    if (!initAudioPlayer()) return false;
+    if (!initRenderer()) return false;
+    if (!initCamera()) return false;
+    if (!initTextRenderer()) return false;
+    if (!initInputManager()) return false;
+    if (!initPhysicsEngine()) return false;
+    if (!initGameState()) return false;
 
-    if (!initConfig())
-        return false;
-    if (!initSDL())
-        return false;
-    if (!initTime())
-        return false;
-    if (!initResourceManager())
-        return false;
-    if (!initRenderer())
-        return false;
-    if (!initCamera())
-        return false;
-    if (!initInputManager())
-        return false;
-    if (!initContext())
-        return false;
-    if (!initSceneManager())
-        return false;
+    if (!initContext()) return false;
+    if (!initSceneManager()) return false;
 
-    auto scene = std::make_unique<game::scene::GameScene>("GameScene", *_context, *_scene_manager);
-    _scene_manager->requestPushScene(std::move(scene));
+    // 调用场景设置函数 (创建第一个场景并压入栈)
+    scene_setup_func_(*scene_manager_);
 
-    _is_running = true;
-
+    is_running_ = true;
+    spdlog::trace("GameApp 初始化成功。");
     return true;
 }
 
-void GameApp::handleEvents()
-{
-    if (_input_manager->shouldQuit()) {
-        spdlog::debug("GameApp 接收到退出事件，准备关闭...");
-        _is_running = false;
+void GameApp::handleEvents() {
+    if (input_manager_->shouldQuit()) {
+        spdlog::trace("GameApp 收到来自 InputManager 的退出请求。");
+        is_running_ = false;
         return;
     }
-    _scene_manager->handleInput();
+
+    scene_manager_->handleInput();
 }
 
-void GameApp::update(float dt)
-{
-    _scene_manager->update(dt);
+void GameApp::update(float delta_time) {
+    // 游戏逻辑更新
+    scene_manager_->update(delta_time);
 }
 
-void GameApp::render()
-{
-    _renderer->clearScreen();
+void GameApp::render() {
+    // 1. 清除屏幕
+    renderer_->clearScreen();
 
-    _scene_manager->render();
+    // 2. 具体渲染代码
+    scene_manager_->render();
 
-    _renderer->present();
+    // 3. 更新屏幕显示
+    renderer_->present();
 }
 
-void GameApp::close()
-{
-    spdlog::info("关闭GameApp...");
-    if (_renderer != nullptr) {
-        SDL_DestroyRenderer(_sdl_renderer);
-        _renderer = nullptr;
+void GameApp::close() {
+    spdlog::trace("关闭 GameApp ...");
+    // 先关闭场景管理器，确保所有场景都被清理
+    scene_manager_->close();
+
+    // 为了确保正确的销毁顺序，有些智能指针对象也需要手动管理
+    resource_manager_.reset();
+
+    if (sdl_renderer_ != nullptr) {
+        SDL_DestroyRenderer(sdl_renderer_);
+        sdl_renderer_ = nullptr;
     }
-    if (_window != nullptr) {
-        SDL_DestroyWindow(_window);
-        _window = nullptr;
+    if (window_ != nullptr) {
+        SDL_DestroyWindow(window_);
+        window_ = nullptr;
     }
     SDL_Quit();
-    _is_running = false;
+    is_running_ = false;
 }
 
 bool GameApp::initConfig()
 {
     try {
-        _config = std::make_unique<engine::core::Config>("assets/config.json");
+        config_ = std::make_unique<engine::core::Config>("assets/config.json");
     } catch (const std::exception& e) {
-        spdlog::error("初始化配置文件失败: {}", e.what());
+        spdlog::error("初始化配置失败: {}", e.what());
         return false;
     }
+    spdlog::trace("配置初始化成功。");
     return true;
 }
 
 bool GameApp::initSDL()
 {
     if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
-        spdlog::error("SDL初始化失败,错误:{}...", SDL_GetError());
+        spdlog::error("SDL 初始化失败! SDL错误: {}", SDL_GetError());
         return false;
     }
 
-    _window = SDL_CreateWindow("SunnyLand", _config->_window_width, _config->_window_height, SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN);
-    if (_window == nullptr) {
-        spdlog::error("无法创建窗口!错误:{}...", SDL_GetError());
+    window_ = SDL_CreateWindow(config_->window_title_.c_str(), config_->window_width_, config_->window_height_, SDL_WINDOW_RESIZABLE);
+    if (window_ == nullptr) {
+        spdlog::error("无法创建窗口! SDL错误: {}", SDL_GetError());
         return false;
     }
 
-    _sdl_renderer = SDL_CreateRenderer(_window, nullptr);
-    if (_sdl_renderer == nullptr) {
-        spdlog::error("无法创建渲染器!错误:{}...", SDL_GetError());
+    sdl_renderer_ = SDL_CreateRenderer(window_, nullptr);
+    if (sdl_renderer_ == nullptr) {
+        spdlog::error("无法创建渲染器! SDL错误: {}", SDL_GetError());
         return false;
     }
 
-    int vsync = _config->_vsync_enabled ? SDL_RENDERER_VSYNC_ADAPTIVE : SDL_RENDERER_VSYNC_DISABLED;
-    SDL_SetRenderVSync(_sdl_renderer, vsync);
-    spdlog::info("VSync:{}", vsync);
+    // 设置渲染器支持透明色
+    SDL_SetRenderDrawBlendMode(sdl_renderer_, SDL_BLENDMODE_BLEND);
 
-    SDL_SetRenderLogicalPresentation(_sdl_renderer, _config->_window_width / 2, _config->_window_height / 2, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    // 设置 VSync (注意: VSync 开启时，驱动程序会尝试将帧率限制到显示器刷新率，有可能会覆盖我们手动设置的 target_fps)
+    int vsync_mode = config_->vsync_enabled_ ? SDL_RENDERER_VSYNC_ADAPTIVE : SDL_RENDERER_VSYNC_DISABLED;
+    SDL_SetRenderVSync(sdl_renderer_, vsync_mode);
+    spdlog::trace("VSync 设置为: {}", config_->vsync_enabled_ ? "Enabled" : "Disabled");
 
-    spdlog::debug("SDL 初始化成功...");
-
-    // SDL_RenderPresent(_sdl_renderer);
+    // 设置逻辑分辨率为窗口大小的一半（针对像素游戏）
+    SDL_SetRenderLogicalPresentation(sdl_renderer_, config_->window_width_ / 2, config_->window_height_ / 2, SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    spdlog::trace("SDL 初始化成功。");
     return true;
 }
 
-bool GameApp::initTime()
-{
+bool GameApp::initTime() {
     try {
-        _time = std::make_unique<Time>();
+        time_ = std::make_unique<Time>();
     } catch (const std::exception& e) {
         spdlog::error("初始化时间管理失败: {}", e.what());
         return false;
     }
-    _time->setTargetFPS(_config->_target_fps);
-    spdlog::debug("时间管理初始化成功。");
+    time_->setTargetFps(config_->target_fps_);
+    spdlog::trace("时间管理初始化成功。");
     return true;
 }
 
-bool GameApp::initResourceManager()
-{
+bool GameApp::initResourceManager() {
     try {
-        _resource_manager = std::make_unique<engine::resource::ResourceManager>(_sdl_renderer);
+        resource_manager_ = std::make_unique<engine::resource::ResourceManager>(sdl_renderer_);
     } catch (const std::exception& e) {
         spdlog::error("初始化资源管理器失败: {}", e.what());
         return false;
     }
-    spdlog::debug("资源管理器初始化成功。");
+    spdlog::trace("资源管理器初始化成功。");
     return true;
 }
 
-bool GameApp::initRenderer()
+bool GameApp::initAudioPlayer()
 {
     try {
-        _renderer = std::make_unique<engine::render::Renderer>(_sdl_renderer, _resource_manager.get());
+        audio_player_ = std::make_unique<engine::audio::AudioPlayer>(resource_manager_.get());
+        audio_player_->setMusicVolume(config_->music_volume_);      // 设置背景音乐音量
+        audio_player_->setSoundVolume(config_->sound_volume_);      // 设置音效音量
+    } catch (const std::exception& e) {
+        spdlog::error("初始化音频播放器失败: {}", e.what());
+        return false;
+    }
+    spdlog::trace("音频播放器初始化成功。");
+    return true;
+}
+
+bool GameApp::initRenderer() {
+    try {
+        renderer_ = std::make_unique<engine::render::Renderer>(sdl_renderer_, resource_manager_.get());
     } catch (const std::exception& e) {
         spdlog::error("初始化渲染器失败: {}", e.what());
         return false;
     }
-
-    spdlog::debug("渲染器初始化成功。");
+    spdlog::trace("渲染器初始化成功。");
     return true;
 }
 
-bool GameApp::initCamera()
-{
+bool GameApp::initCamera() {
     try {
-        _camera = std::make_unique<engine::render::Camera>(glm::vec2(_config->_window_width / 2, _config->_window_height / 2));
+        camera_ = std::make_unique<engine::render::Camera>(glm::vec2(config_->window_width_ / 2, config_->window_height_ / 2));
     } catch (const std::exception& e) {
-        spdlog::error("初始化摄像机失败: {}", e.what());
+        spdlog::error("初始化相机失败: {}", e.what());
         return false;
     }
-    spdlog::debug("摄像机初始化成功。");
+    spdlog::trace("相机初始化成功。");
+    return true;
+}
+
+bool GameApp::initTextRenderer()
+{
+    try {
+        text_renderer_ = std::make_unique<engine::render::TextRenderer>(sdl_renderer_, resource_manager_.get());
+    } catch (const std::exception& e) {
+        spdlog::error("初始化文字渲染引擎失败: {}", e.what());
+        return false;
+    }
+    spdlog::trace("文字渲染引擎初始化成功。");
     return true;
 }
 
 bool GameApp::initInputManager()
 {
     try {
-        _input_manager = std::make_unique<engine::input::InputManager>(_sdl_renderer, _config.get());
+        input_manager_ = std::make_unique<engine::input::InputManager>(sdl_renderer_, config_.get());
     } catch (const std::exception& e) {
         spdlog::error("初始化输入管理器失败: {}", e.what());
         return false;
@@ -228,10 +255,41 @@ bool GameApp::initInputManager()
     return true;
 }
 
+bool GameApp::initPhysicsEngine()
+{
+    try {
+        physics_engine_ = std::make_unique<engine::physics::PhysicsEngine>();
+    }
+    catch (const std::exception& e) {
+        spdlog::error("初始化物理引擎失败: {}", e.what());
+        return false;
+    }
+    spdlog::trace("物理引擎初始化成功。");
+    return true;
+}
+
+bool GameApp::initGameState()
+{
+    try {
+        game_state_ = std::make_unique<engine::core::GameState>(window_, sdl_renderer_);
+    } catch (const std::exception& e) {
+        spdlog::error("初始化游戏状态失败: {}", e.what());
+        return false;
+    }
+    return true;
+}
+
 bool GameApp::initContext()
 {
     try {
-        _context = std::make_unique<engine::core::Context>(*_input_manager, *_renderer, *_camera, *_resource_manager);
+        context_ = std::make_unique<engine::core::Context>(*input_manager_,
+                                                           *renderer_, 
+                                                           *camera_, 
+                                                           *text_renderer_,
+                                                           *resource_manager_, 
+                                                           *physics_engine_, 
+                                                           *audio_player_,
+                                                           *game_state_);
     } catch (const std::exception& e) {
         spdlog::error("初始化上下文失败: {}", e.what());
         return false;
@@ -242,13 +300,13 @@ bool GameApp::initContext()
 bool GameApp::initSceneManager()
 {
     try {
-        _scene_manager = std::make_unique<engine::scene::SceneManager>(*_context);
+        scene_manager_ = std::make_unique<engine::scene::SceneManager>(*context_);
     } catch (const std::exception& e) {
         spdlog::error("初始化场景管理器失败: {}", e.what());
         return false;
     }
+    spdlog::trace("场景管理器初始化成功。");
     return true;
 }
 
-GameApp::GameApp() = default;
 } // namespace engine::core

@@ -1,75 +1,72 @@
 #pragma once
-
-#include <unordered_map>
-#include <glm/glm.hpp>
-#include <SDL3/SDL_render.h>
 #include <string>
-#include <variant>
+#include <string_view>
+#include <unordered_map>
 #include <vector>
+#include <variant>
+#include <SDL3/SDL_render.h>
+#include <glm/vec2.hpp>
 
-
-
-namespace engine::core{
-class Config;
+namespace engine::core {
+    class Config;
 }
 
-namespace engine::input{
+namespace engine::input {
 
-enum class ActionState{
-    INACTIVE,
-    PRESS_THIS_FRAME,
-    HELD_DOWN,
-    RELEASED_THIS_FRAME
+enum class ActionState {
+    INACTIVE,           ///< @brief 动作未激活
+    PRESSED_THIS_FRAME, ///< @brief 动作在本帧刚刚被按下
+    HELD_DOWN,          ///< @brief 动作被持续按下
+    RELEASED_THIS_FRAME ///< @brief 动作在本帧刚刚被释放
 };
 
-
-class InputManager final{
-
+/**
+ * @brief 输入管理器类，负责处理输入事件和动作状态。
+ * 
+ * 该类管理输入事件，将按键转换为动作状态，并提供查询动作状态的功能。
+ * 它还处理鼠标位置的逻辑坐标转换。
+ */
+class InputManager final {
 private:
-    SDL_Renderer*_renderer;
-    // 实际按键           ->        抽象按键名称    <-          动作
-    // _input_to_actions_map          ->        _actions_to_keyname_map
+    SDL_Renderer* sdl_renderer_;                                            ///< @brief 用于获取逻辑坐标的 SDL_Renderer 指针
+    std::unordered_map<std::string, std::vector<std::string>> actions_to_keyname_map_;      ///< @brief 存储动作名称到按键名称列表的映射
+    std::unordered_map<std::variant<SDL_Scancode, Uint32>, std::vector<std::string>> input_to_actions_map_;///< @brief 从输入到关联的动作名称列表
 
-    /* 动作名称到按键名称 */
-    std::unordered_map<std::string,std::vector<std::string>>_actions_to_keyname_map;
+    std::unordered_map<std::string, ActionState> action_states_;    ///< @brief 存储每个动作的当前状态
 
-    /* 输入到关联的动作名称列表 */
-    std::unordered_map<std::variant<Uint32,SDL_Scancode>,std::vector<std::string>>_input_to_actions_map;
-
-    /* 每个动作的当前状态 */
-    std::unordered_map<std::string,ActionState>_action_states;
-
-    bool _should_quit = false;
-    glm::vec2 _mouse_position;
-
+    bool should_quit_ = false;                                      ///< @brief 退出标志
+    glm::vec2 mouse_position_;                                      ///< @brief 鼠标位置 (针对屏幕坐标)
 
 public:
-    InputManager(SDL_Renderer* renderer,const engine::core::Config*config);
+    /**
+     * @brief 构造函数
+     * @param sdl_renderer 指向 SDL_Renderer 的指针
+     * @param config 配置对象
+     * @throws std::runtime_error 如果任一指针为 nullptr。
+     */
+    InputManager(SDL_Renderer* sdl_renderer, const engine::core::Config* config);
 
-    /* 更新输入状态，每轮优先调用 */
-    void update();
+    void update();                                    ///< @brief 更新输入状态，每轮循环最先调用
 
-    /* 动作检查 */
-    bool isActionDown(const std::string&action_name) const;
-    bool isActionPressed(const std::string&action_name) const;
-    bool isActionReleased(const std::string&action_name) const;
 
-    bool shouldQuit() const;
-    void setShouldQuit(bool should_quit);
+    // 动作状态检查
+    bool isActionDown(std::string_view action_name) const;        ///< @brief 动作当前是否触发 (持续按下或本帧按下)
+    bool isActionPressed(std::string_view action_name) const;     ///< @brief 动作是否在本帧刚刚按下
+    bool isActionReleased(std::string_view action_name) const;    ///< @brief 动作是否在本帧刚刚释放
 
-    glm::vec2 getMousePosition() const;
-    glm::vec2 getLogicalMousePosition() const;
+    bool shouldQuit() const;                                         ///< @brief 查询退出状态
+    void setShouldQuit(bool should_quit);                            ///< @brief 设置退出状态
+
+    glm::vec2 getMousePosition() const;                              ///< @brief 获取鼠标位置 （屏幕坐标）
+    glm::vec2 getLogicalMousePosition() const;                       ///< @brief 获取鼠标位置 （逻辑坐标）
 
 private:
-    /* 处理事件，将按键转化为状态 */
-    void processEvent(const SDL_Event&event);
-    void initializeMappings(const engine::core::Config*config);
+    void processEvent(const SDL_Event& event);                      ///< @brief 处理 SDL 事件（将按键转换为动作状态）
+    void initializeMappings(const engine::core::Config* config);                            ///< @brief 根据 Config配置初始化映射表
 
-    void updateActionState(const std::string&action_name,bool is_input_active ,bool is_repeat_event);
-
-    SDL_Scancode scancodeFromString(const std::string&key_name) const;
-    Uint32 mouseButtonFromString(const std::string&button_name) const;
+    void updateActionState(std::string_view action_name, bool is_input_active, bool is_repeat_event); ///< @brief 辅助更新动作状态
+    SDL_Scancode scancodeFromString(std::string_view key_name);                           ///< @brief 将字符串键名转换为 SDL_Scancode
+    Uint32 mouseButtonFromString(std::string_view button_name);                       ///< @brief 将字符串按钮名转换为 SDL_Button
 };
 
-
-}
+} // namespace engine::input 
